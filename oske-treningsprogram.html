@@ -370,10 +370,16 @@ async function sendMsg(){
     removeEl(tid);
     let reply='',newScores={};
     try{
-      const p=JSON.parse(raw);
+      // Extract JSON even if model adds extra text around it
+      const jsonMatch=raw.match(/\{[\s\S]*?eply\[\s\S]*?\}/);
+      const jsonStr=jsonMatch?jsonMatch[0]:raw;
+      const p=JSON.parse(jsonStr);
       reply=p.reply||'';
       newScores=p.scores||{};
-    }catch(e){reply=raw;}
+    }catch(e){
+      // Strip any JSON from reply if parse fails
+      reply=raw.replace(/\{[\s\S]*\}/g,'').trim()||raw;
+    }
     addMsg('assistant',reply);
     chatHistory.push({role:'assistant',content:reply});
     const earned=[];
