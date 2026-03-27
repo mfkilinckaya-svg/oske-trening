@@ -4,719 +4,650 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OSKE Treningsprogram</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #060d1a; --surface: #0d1b2e; --panel: #112236;
-    --border: #1a3050; --borderL: #1e3a5f;
-    --accent: #2d7dd2; --success: #0fa87e; --warning: #e8a020; --danger: #d94f4f;
-    --text: #dce8f5; --muted: #5a7a99; --dim: #3a5878; --highlight: #0d2a4a;
-    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#060d1a;--surface:#0d1b2e;--panel:#112236;
+    --border:#1a3050;--borderL:#1e3a5f;
+    --accent:#2d7dd2;--success:#0fa87e;--warning:#e8a020;--danger:#d94f4f;
+    --text:#dce8f5;--muted:#5a7a99;--dim:#3a5878;--hl:#0d2a4a;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
   }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
-  button { cursor: pointer; font-family: var(--sans); border: none; transition: opacity 0.15s, background 0.15s; }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
-  textarea, input { font-family: var(--sans); color: var(--text); outline: none; }
-  .screen { display: none; } .screen.active { display: block; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
-  .btn { border-radius: 6px; font-weight: 600; padding: 10px 20px; font-size: 14px; letter-spacing: 0.01em; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-success { background: var(--success); color: #fff; }
-  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border) !important; }
-  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent) !important; }
-  .btn-sm { padding: 6px 14px; font-size: 13px; }
-  .score-bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .pulse { animation: pulse 1s infinite; }
-  .divider { height: 1px; background: var(--border); flex: 1; }
-  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+  button{cursor:pointer;font-family:var(--sans);border:none;transition:all 0.15s}
+  button:disabled{opacity:0.4;cursor:not-allowed}
+  textarea,input{font-family:var(--sans);color:var(--text);outline:none}
+  .screen{display:none}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+  .btn{border-radius:6px;font-weight:600;padding:10px 20px;font-size:14px}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-success{background:var(--success);color:#fff}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+  .btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+  .btn-sm{padding:6px 14px;font-size:13px}
+  .bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  .pulse{animation:pulse 1s infinite}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fadeIn 0.3s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+  ::-webkit-scrollbar{width:5px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 </style>
 </head>
 <body>
 
-<!-- ═══ SCREEN: MENU ═══════════════════════════════════════════════════════ -->
-<div id="screen-menu" class="screen active">
-  <div style="max-width:700px;margin:0 auto;padding:40px 20px">
-    <div style="text-align:center;margin-bottom:48px">
-      <div style="font-family:var(--mono);color:var(--dim);font-size:11px;letter-spacing:.2em;margin-bottom:12px">NORSK MEDISINSK UTDANNING</div>
-      <h1 style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px">OSKE Treningsprogram</h1>
-      <p style="color:var(--muted);font-family:var(--mono);font-size:13px">Velg en stasjon og tren med AI-pasient 🎙️</p>
-    </div>
-
-    <div style="margin-bottom:32px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <span style="font-family:var(--mono);color:var(--dim);font-size:11px;letter-spacing:.15em">SKULDER</span>
-        <div class="divider"></div>
-      </div>
-      <div id="station-list" style="display:flex;flex-direction:column;gap:10px"></div>
-    </div>
+<!-- ══ MENU ══════════════════════════════════════════════════════════════ -->
+<div id="s-menu" class="screen" style="max-width:700px;margin:0 auto;padding:40px 20px">
+  <div style="text-align:center;margin-bottom:48px">
+    <div style="font-family:var(--mono);color:var(--dim);font-size:11px;letter-spacing:.2em;margin-bottom:12px">NORSK MEDISINSK UTDANNING</div>
+    <h1 style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px">OSKE Treningsprogram</h1>
+    <p style="color:var(--muted);font-family:var(--mono);font-size:13px">Velg en stasjon og tren med AI-pasient 🎙️</p>
   </div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <span style="font-family:var(--mono);color:var(--dim);font-size:11px;letter-spacing:.15em">SKULDER</span>
+    <div style="height:1px;background:var(--border);flex:1"></div>
+  </div>
+  <div id="station-list" style="display:flex;flex-direction:column;gap:10px"></div>
 </div>
 
-<!-- ═══ SCREEN: BRIEFING ══════════════════════════════════════════════════ -->
-<div id="screen-briefing" class="screen">
-  <div style="max-width:700px;margin:0 auto;padding:32px 20px">
-    <button class="btn btn-ghost btn-sm" onclick="showMenu()" style="margin-bottom:24px">← Tilbake</button>
-    <div id="briefing-chip" style="margin-bottom:8px"></div>
-    <h1 id="briefing-title" style="font-size:22px;font-weight:700;letter-spacing:-.01em;margin:8px 0 24px"></h1>
-    <div class="panel" style="margin-bottom:16px;border-left:3px solid var(--accent)">
-      <div style="font-family:var(--mono);color:var(--muted);font-size:11px;letter-spacing:.1em;margin-bottom:10px">SCENARIO</div>
-      <p id="briefing-scenario" style="font-size:15px;line-height:1.7"></p>
-    </div>
-    <div class="panel" style="margin-bottom:16px">
-      <div style="font-family:var(--mono);color:var(--muted);font-size:11px;letter-spacing:.1em;margin-bottom:10px">OPPGAVER</div>
-      <div id="briefing-tasks" style="display:flex;flex-direction:column;gap:8px"></div>
-    </div>
-    <div style="display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap">
-      <div class="panel" style="flex:1;min-width:110px;text-align:center;padding:14px 16px">
-        <div id="b-time" style="color:var(--accent);font-family:var(--mono);font-size:22px;font-weight:700"></div>
-        <div style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px">minutter</div>
-      </div>
-      <div class="panel" style="flex:1;min-width:110px;text-align:center;padding:14px 16px">
-        <div id="b-max" style="color:var(--success);font-family:var(--mono);font-size:22px;font-weight:700"></div>
-        <div style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px">maks poeng</div>
-      </div>
-      <div class="panel" style="flex:1;min-width:110px;text-align:center;padding:14px 16px">
-        <div id="b-pass" style="color:var(--warning);font-family:var(--mono);font-size:22px;font-weight:700"></div>
-        <div style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px">bestått (65%)</div>
-      </div>
-    </div>
-    <button class="btn btn-primary" style="width:100%" onclick="startPractice()">Start øvelse →</button>
+<!-- ══ BRIEFING ══════════════════════════════════════════════════════════ -->
+<div id="s-briefing" class="screen" style="max-width:700px;margin:0 auto;padding:32px 20px">
+  <button class="btn btn-ghost btn-sm" onclick="go('menu')" style="margin-bottom:24px">← Tilbake</button>
+  <div id="b-chip" style="margin-bottom:8px"></div>
+  <h1 id="b-title" style="font-size:22px;font-weight:700;margin:8px 0 24px"></h1>
+  <div class="panel" style="margin-bottom:16px;border-left:3px solid var(--accent)">
+    <div style="font-family:var(--mono);color:var(--muted);font-size:11px;letter-spacing:.1em;margin-bottom:10px">SCENARIO</div>
+    <p id="b-scenario" style="font-size:15px;line-height:1.7"></p>
   </div>
+  <div class="panel" style="margin-bottom:16px">
+    <div style="font-family:var(--mono);color:var(--muted);font-size:11px;letter-spacing:.1em;margin-bottom:10px">OPPGAVER</div>
+    <div id="b-tasks" style="display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.5"></div>
+  </div>
+  <div style="display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap">
+    <div class="panel" style="flex:1;min-width:100px;text-align:center;padding:14px">
+      <div id="b-time" style="color:var(--accent);font-family:var(--mono);font-size:22px;font-weight:700"></div>
+      <div style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px">minutter</div>
+    </div>
+    <div class="panel" style="flex:1;min-width:100px;text-align:center;padding:14px">
+      <div id="b-max" style="color:var(--success);font-family:var(--mono);font-size:22px;font-weight:700"></div>
+      <div style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px">maks poeng</div>
+    </div>
+    <div class="panel" style="flex:1;min-width:100px;text-align:center;padding:14px">
+      <div id="b-pass" style="color:var(--warning);font-family:var(--mono);font-size:22px;font-weight:700"></div>
+      <div style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px">bestått (65%)</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" style="width:100%" onclick="startPractice()">Start øvelse →</button>
 </div>
 
-<!-- ═══ SCREEN: PRACTICE ═════════════════════════════════════════════════ -->
-<div id="screen-practice" class="screen" style="height:100vh;display:none;flex-direction:column">
-  <!-- Top bar -->
-  <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+<!-- ══ PRACTICE ═══════════════════════════════════════════════════════════ -->
+<div id="s-practice" class="screen" style="height:100vh;flex-direction:column">
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
     <div>
       <div id="p-title" style="font-weight:600;font-size:14px"></div>
-      <div id="p-patient" style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px"></div>
+      <div id="p-patient" style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:1px"></div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div id="timer" style="background:var(--panel);border:1px solid var(--success);border-radius:8px;padding:6px 14px;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--success);min-width:70px;text-align:center">7:00</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="timer" style="background:var(--panel);border:1px solid var(--success);border-radius:8px;padding:5px 12px;font-family:var(--mono);font-size:17px;font-weight:700;color:var(--success);min-width:65px;text-align:center">7:00</div>
       <button class="btn btn-ghost btn-sm" onclick="toggleHint()">💡 Hint</button>
-      <button class="btn btn-success btn-sm" onclick="finishPractice()">Avslutt →</button>
+      <button class="btn btn-success btn-sm" onclick="finishExam()">Avslutt →</button>
     </div>
   </div>
-  <!-- Hint -->
-  <div id="hint-bar" style="display:none;background:var(--highlight);border-bottom:1px solid rgba(45,125,210,.2);padding:10px 20px">
+  <div id="hint-bar" style="display:none;background:var(--hl);border-bottom:1px solid rgba(45,125,210,.2);padding:8px 20px">
     <div style="font-family:var(--mono);color:var(--muted);font-size:11px;margin-bottom:4px">OPPGAVER</div>
-    <div id="hint-tasks" style="display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--text)"></div>
+    <div id="hint-tasks" style="font-family:var(--mono);font-size:12px;color:var(--text);display:flex;flex-wrap:wrap;gap:12px"></div>
   </div>
-  <!-- Chat -->
-  <div id="chat" style="flex:1;overflow-y:auto;padding:20px 20px 12px">
-    <div id="chat-inner" style="max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:16px"></div>
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:6px 20px;display:flex;align-items:center;gap:12px">
+    <span style="font-family:var(--mono);color:var(--muted);font-size:11px;white-space:nowrap">POENG</span>
+    <div class="bar-track" style="flex:1"><div id="live-bar" class="bar-fill" style="width:0%;background:var(--success)"></div></div>
+    <span id="live-score" style="font-family:var(--mono);font-size:12px;color:var(--success);min-width:50px;text-align:right">0 / 0</span>
   </div>
-  <!-- Input -->
-  <div style="background:var(--surface);border-top:1px solid var(--border);padding:14px 20px">
+  <div id="chat" style="flex:1;overflow-y:auto;padding:16px 20px 8px">
+    <div id="chat-inner" style="max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+  <div style="background:var(--surface);border-top:1px solid var(--border);padding:12px 20px">
     <div style="max-width:660px;margin:0 auto">
-      <div id="rec-indicator" style="display:none;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;border-radius:6px">
+      <div id="rec-ind" style="display:none;align-items:center;gap:8px;margin-bottom:8px;padding:5px 10px;border-radius:6px">
         <div id="rec-dot" style="width:8px;height:8px;border-radius:50%" class="pulse"></div>
-        <span id="rec-text" style="font-family:var(--mono);font-size:11px;letter-spacing:.05em"></span>
+        <span id="rec-txt" style="font-family:var(--mono);font-size:11px;letter-spacing:.05em"></span>
       </div>
-      <div style="display:flex;gap:10px">
+      <div style="display:flex;gap:8px">
         <textarea id="msg-input" rows="2" placeholder="Snakk eller skriv til pasienten..."
           style="flex:1;background:var(--panel);border:1px solid var(--borderL);border-radius:8px;padding:10px 14px;font-size:14px;resize:none;line-height:1.5"
-          onkeydown="handleKey(event)"></textarea>
-        <div style="display:flex;flex-direction:column;gap:8px;justify-content:flex-end">
-          <button id="mic-btn" onclick="toggleRecording()"
-            style="width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--panel);font-size:18px;display:flex;align-items:center;justify-content:center">🎙️</button>
-          <button class="btn btn-primary" onclick="sendMessage()" id="send-btn">Send</button>
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+        <div style="display:flex;flex-direction:column;gap:6px;justify-content:flex-end">
+          <button id="mic-btn" onclick="toggleRec()" style="width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--panel);font-size:17px;display:flex;align-items:center;justify-content:center">🎙️</button>
+          <button class="btn btn-primary btn-sm" onclick="sendMsg()" id="send-btn">Send</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ SCREEN: SCORING ══════════════════════════════════════════════════ -->
-<div id="screen-scoring" class="screen">
-  <div style="max-width:700px;margin:0 auto;padding:32px 20px">
-    <button class="btn btn-ghost btn-sm" onclick="showPractice()" style="margin-bottom:24px">← Samtalen</button>
-    <div id="score-header" class="panel" style="margin-bottom:20px;text-align:center;padding:28px 24px"></div>
-    <div id="score-feedback" style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap"></div>
-    <div id="score-general" style="margin-bottom:20px"></div>
-    <div id="score-detail" class="panel" style="margin-bottom:24px"></div>
-    <div id="score-toggle" style="text-align:center;margin-bottom:20px"></div>
-    <div style="display:flex;gap:12px;justify-content:center">
-      <button class="btn btn-outline" onclick="showPractice()">Se samtalen igjen</button>
-      <button class="btn btn-primary" onclick="showMenu()">Ny stasjon</button>
-    </div>
+<!-- ══ SENSOR ═════════════════════════════════════════════════════════════ -->
+<div id="s-sensor" class="screen" style="max-width:700px;margin:0 auto;padding:32px 20px">
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="font-size:32px;margin-bottom:8px">🎓</div>
+    <h2 style="font-size:20px;font-weight:700">Sensørspørsmål</h2>
+    <p style="color:var(--muted);font-family:var(--mono);font-size:12px;margin-top:4px">Muayene bitti — nå stiller sensor deg spørsmål</p>
+  </div>
+  <div class="panel" style="margin-bottom:20px;border-left:3px solid var(--warning)">
+    <div style="font-family:var(--mono);color:var(--warning);font-size:11px;letter-spacing:.1em;margin-bottom:10px">SENSOR SPØR</div>
+    <p id="sensor-question" style="font-size:15px;line-height:1.7"></p>
+  </div>
+  <div id="sensor-rec-ind" style="display:none;align-items:center;gap:8px;margin-bottom:8px;padding:5px 10px;border-radius:6px">
+    <div id="sensor-rec-dot" style="width:8px;height:8px;border-radius:50%" class="pulse"></div>
+    <span id="sensor-rec-txt" style="font-family:var(--mono);font-size:11px;letter-spacing:.05em"></span>
+  </div>
+  <textarea id="sensor-input" rows="4" placeholder="Skriv eller snakk svaret ditt..."
+    style="width:100%;background:var(--panel);border:1px solid var(--borderL);border-radius:8px;padding:12px 14px;font-size:14px;resize:none;line-height:1.6;margin-bottom:12px"></textarea>
+  <div style="display:flex;gap:10px;margin-bottom:16px">
+    <button id="sensor-mic-btn" onclick="toggleSensorRec()" style="width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--panel);font-size:17px;display:flex;align-items:center;justify-content:center">🎙️</button>
+    <button class="btn btn-primary" style="flex:1" onclick="submitSensorAnswer()" id="sensor-submit-btn">Svar →</button>
+  </div>
+  <div style="text-align:center">
+    <span id="sensor-progress" style="font-family:var(--mono);color:var(--muted);font-size:12px"></span>
+  </div>
+</div>
+
+<!-- ══ SCORING ════════════════════════════════════════════════════════════ -->
+<div id="s-scoring" class="screen" style="max-width:700px;margin:0 auto;padding:32px 20px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+    <button class="btn btn-ghost btn-sm" onclick="go('practice')">← Samtalen</button>
+    <div id="score-countdown" style="font-family:var(--mono);font-size:13px;color:var(--muted)"></div>
+  </div>
+  <div id="score-header" class="panel" style="margin-bottom:20px;text-align:center;padding:28px 24px"></div>
+  <div id="score-sensor-answers" style="margin-bottom:20px"></div>
+  <div id="score-detail" class="panel" style="margin-bottom:24px"></div>
+  <div style="display:flex;gap:12px;justify-content:center">
+    <button class="btn btn-outline" onclick="go('practice')">Se samtalen</button>
+    <button class="btn btn-primary" onclick="go('menu')">Ny stasjon</button>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════════════════════════════════════
-const ANTHROPIC_KEY_HINT = ""; // injected via API proxy in claude.ai
 const GROQ_KEY = "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";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_WHISPER = "whisper-large-v3";
 
-// ═══════════════════════════════════════════════════════════════════════
-// STATION DATA
-// ═══════════════════════════════════════════════════════════════════════
 const STATIONS = [
   {
-    id: "skulder1",
-    stationName: "Skulder 1 – Frossen skulder",
-    stationType: "klinisk",
-    scenario: "Du er turnuslege på et allmennlegekontor. En 70 år gammel mann tar kontakt grunnet økende smerter og stivhet i høyre skulder de siste månedene. Smertene lokaliseres til utsiden av overarmen med utstråling til radialsiden av underarmen. Pasienten har problemer med å løfte armen, f.eks. under påkledning. For ca. 6 måneder tilbake ble pasienten utsatt for et traume med brudd i høyre overarm (konservativt behandlet). Det kommer frem at pasienten ikke har møtt opp til fysiotimene etter bruddet.",
-    patientInfo: { name: "Harald Berg", age: "70", gender: "mann", complaint: "smerter og stivhet i høyre skulder etter gammelt brudd" },
-    tasks: ["a) Gjør en relevant klinisk undersøkelse av høyre skulder", "b) Hvilken diagnose har pasienten mest sannsynlig pådratt seg?"],
-    timeMinutes: 7,
-    scoringCriteria: [
-      { id:1, category:"Undersøkelse", description:"Ber pasienten kle av seg", maxPoints:1, hint:"Start med avkledning" },
-      { id:2, category:"Undersøkelse", description:"Inspeksjon – feilstillinger", maxPoints:1, hint:"Se etter asymmetri og atrofi" },
-      { id:3, category:"Undersøkelse", description:"Aktiv bevegelighet (alle retninger)", maxPoints:1, hint:"Fleksjon, abduksjon, ekstensjon, rotasjon" },
-      { id:4, category:"Undersøkelse", description:"Passiv bevegelighet (fikser scapula ved abduksjon)", maxPoints:1, hint:"Fikser scapula ved abduksjon" },
-      { id:5, category:"Undersøkelse", description:"Isometriske tester", maxPoints:1, hint:"Test muskelstyrken isometrisk" },
-      { id:6, category:"Undersøkelse", description:"Spesifikke prøver (impingement, SLAP, stabilitet, AC-ledd)", maxPoints:1, hint:"Viser differensialdiagnostisk tankegang" },
-      { id:7, category:"Undersøkelse", description:"Palpasjon (subacromialt, muskulatur)", maxPoints:1, hint:"Palper subacromialt rom" },
-      { id:8, category:"Diagnose", description:"Posttraumatisk skulderkapsulitt (frozen shoulder) – kapsulært mønster", maxPoints:2, hint:"Utadrotasjon mest nedsatt" },
+    id:"skulder1",
+    stationName:"Skulder 1 – Frossen skulder",
+    scenario:"Du er turnuslege på et allmennlegekontor. En 70 år gammel mann tar kontakt grunnet økende smerter og stivhet i høyre skulder de siste månedene. Smertene lokaliseres til utsiden av overarmen med utstråling til radialsiden av underarmen. Pasienten har problemer med å løfte armen. For ca. 6 måneder tilbake fikk han brudd i høyre overarm (konservativt behandlet), men møtte ikke opp til fysioterapi.",
+    patientInfo:{name:"Harald Berg",age:"70",gender:"mann",complaint:"smerter og stivhet i høyre skulder"},
+    patientContext:"Du har posttraumatisk skulderkapsulitt (frozen shoulder) etter et brudd for 6 måneder siden. Utadrotasjon er mest nedsatt (minst 45 grader), deretter abduksjon, mens innadrotasjon er minst påvirket. Du har sterke smerter ved bevegelse. Du møtte ikke opp til fysioterapi fordi du trodde det ville gå over av seg selv.",
+    tasks:["a) Gjør en relevant klinisk undersøkelse av høyre skulder","b) Hvilken diagnose har pasienten mest sannsynlig?"],
+    timeMinutes:7,
+    scoringCriteria:[
+      {id:1,category:"Undersøkelse",description:"Ber pasienten kle av seg",maxPoints:1,keywords:["kle av","ta av","genser","skjorte","avkledning"]},
+      {id:2,category:"Undersøkelse",description:"Inspeksjon – feilstillinger/atrofi",maxPoints:1,keywords:["inspisere","se på","inspeksjon","feilstilling","atrofi","sammenligne"]},
+      {id:3,category:"Undersøkelse",description:"Aktiv bevegelighet (alle retninger)",maxPoints:1,keywords:["aktiv","løfte","heve","rotere","beveg","fleksjon","abduksjon","ekstensjon"]},
+      {id:4,category:"Undersøkelse",description:"Passiv bevegelighet (fikser scapula)",maxPoints:1,keywords:["passiv","jeg beveger","fikser","scapula","skulderblad"]},
+      {id:5,category:"Undersøkelse",description:"Isometriske tester",maxPoints:1,keywords:["isometrisk","motstand","trykk mot","hold imot","kraft"]},
+      {id:6,category:"Undersøkelse",description:"Spesifikke prøver (impingement/SLAP/stabilitet/AC)",maxPoints:1,keywords:["impingement","neer","hawkins","slap","stabilitet","apprehension","ac-ledd","cross body"]},
+      {id:7,category:"Undersøkelse",description:"Palpasjon (subacromialt, muskulatur)",maxPoints:1,keywords:["palper","kjenne etter","trykke","subacromial","muskulatur","ømhet"]},
     ],
-    totalMaxPoints: 9, passingScore: 6,
+    totalMaxPoints:7, passingScore:5,
+    sensorQuestions:[
+      {id:"diag",question:"Du har nå gjennomført undersøkelsen. Basert på dine funn – hva er den mest sannsynlige diagnosen, og hva er det karakteristiske bevegelsesbegrensende mønsteret ved denne tilstanden?",scoringCriteriaIds:[8],points:2},
+    ],
+    sensorCriteria:[
+      {id:8,category:"Diagnose",description:"Posttraumatisk skulderkapsulitt / frozen shoulder med kapsulært mønster",maxPoints:2},
+    ],
   },
   {
-    id: "skulder2",
-    stationName: "Skulder 2 – AC-ledd artrose",
-    stationType: "klinisk",
-    scenario: "Du er turnuslege på et allmennlegekontor. En 45 år gammel høyrehendt mann som jobber som snekker kommer inn. Han har de siste 5 år hatt økende smerter over høyre skuldertopp med utstråling mot halsen og clavicula. Av og til nattesmerter og hvilesmerter. Vondt å ligge på høyre skulder. Problemer med abduksjon over 90 grader og adduksjon.",
-    patientInfo: { name: "Kjell Andersen", age: "45", gender: "mann", complaint: "smerter i høyre skuldertopp, vondt ved abduksjon og adduksjon" },
-    tasks: ["Gjør en fullstendig skulderundersøkelse", "Still en tentativ diagnose"],
-    timeMinutes: 7,
-    scoringCriteria: [
-      { id:1, category:"Undersøkelse", description:"Ber pasienten kle av seg", maxPoints:1, hint:"Eksponering nødvendig" },
-      { id:2, category:"Inspeksjon", description:"Feilstillinger", maxPoints:1, hint:"Sammenlign begge skuldre" },
-      { id:3, category:"Inspeksjon", description:"Atrofi", maxPoints:1, hint:"Supraspinatus/infraspinatus" },
-      { id:4, category:"Inspeksjon", description:"Vingescapula", maxPoints:1, hint:"Be pasienten trykke mot veggen" },
-      { id:5, category:"Aktiv bevegelighet", description:"Fleksjon, ekstensjon, abduksjon (humeroskapulær rytme), adduksjon, rotasjon", maxPoints:6, hint:"Test alle retninger" },
-      { id:6, category:"Passiv bevegelighet", description:"Alle retninger (fikser scapula ved abduksjon)", maxPoints:5, hint:"Sammenlign med aktiv" },
-      { id:7, category:"Isometriske prøver", description:"Alle retninger", maxPoints:5, hint:"Smerte eller svakhet?" },
-      { id:8, category:"Spesifikke prøver", description:"AC-leddstest: Cross Body test", maxPoints:1, hint:"Provoserer AC-leddet" },
-      { id:9, category:"Palpasjon", description:"Subacromialt, muskulatur, glenohumeral, sternoklavikulær, clavicula, AC-ledd", maxPoints:1, hint:"Systematisk palpasjon" },
+    id:"skulder2",
+    stationName:"Skulder 2 – AC-ledd artrose",
+    scenario:"Du er turnuslege. En 45 år gammel høyrehendt snekker kommer inn med 5 års historie med økende smerter over høyre skuldertopp med utstråling mot halsen og clavicula. Av og til nattesmerter. Vondt å ligge på høyre side. Problemer med abduksjon over 90° og adduksjon.",
+    patientInfo:{name:"Kjell Andersen",age:"45",gender:"mann",complaint:"smerter i høyre skuldertopp ved abduksjon og adduksjon"},
+    patientContext:"Du har AC-ledd artrose. Smerter spesielt ved cross body-bevegelser og abduksjon over 90 grader. Palpasjon over AC-leddet er veldig ømt. Du er snekker og jobber med armene over hodet daglig, noe som forverrer smertene.",
+    tasks:["Gjør en fullstendig skulderundersøkelse","Still en tentativ diagnose"],
+    timeMinutes:7,
+    scoringCriteria:[
+      {id:1,category:"Undersøkelse",description:"Ber pasienten kle av seg",maxPoints:1,keywords:["kle av","ta av","genser","skjorte"]},
+      {id:2,category:"Inspeksjon",description:"Feilstillinger",maxPoints:1,keywords:["feilstilling","se etter","inspisere","inspeksjon"]},
+      {id:3,category:"Inspeksjon",description:"Atrofi",maxPoints:1,keywords:["atrofi","muskel","svinne"]},
+      {id:4,category:"Inspeksjon",description:"Vingescapula",maxPoints:1,keywords:["vingescapula","scapula","skulderblad","vinge"]},
+      {id:5,category:"Aktiv bevegelighet",description:"Alle retninger inkl. humeroskapulær rytme",maxPoints:6,keywords:["aktiv","løfte","heve","fleksjon","abduksjon","ekstensjon","rotasjon","rytme","adduksjon"]},
+      {id:6,category:"Passiv bevegelighet",description:"Alle retninger (fikser scapula)",maxPoints:5,keywords:["passiv","jeg beveger","fikser","scapula"]},
+      {id:7,category:"Isometriske prøver",description:"Alle retninger",maxPoints:5,keywords:["isometrisk","motstand","kraft","trykk mot"]},
+      {id:8,category:"Spesifikke prøver",description:"Cross Body test (AC-ledd)",maxPoints:1,keywords:["cross body","krysser","adduksjon test","ac-ledd test"]},
+      {id:9,category:"Palpasjon",description:"Subacromialt, muskulatur, glenohumeral, clavicula, AC-ledd",maxPoints:1,keywords:["palper","kjenne etter","trykke","subacromial","clavicula","ac-ledd","glenohumeral"]},
     ],
-    totalMaxPoints: 22, passingScore: 14,
+    totalMaxPoints:22, passingScore:14,
+    sensorQuestions:[], // ingen sensor
+    sensorCriteria:[],
   },
   {
-    id: "skulder3",
-    stationName: "Skulder 3 – AC-luksasjon",
-    stationType: "klinisk",
-    scenario: "Du jobber som fastlege og tar imot en 21 år gammel mann som i dag har skadet skulderen under en hockeykamp. Han ble taklet og landet på sin venstre side på isen. Hovedsakelig vondt i venstre skulder. Ingen tidligere skulderskader.",
-    patientInfo: { name: "Markus Dahl", age: "21", gender: "mann", complaint: "smerter i venstre skulder etter taklingsskade i hockey" },
-    tasks: ["1. Gjør en undersøkelse. Beskriv undersøkelser du ikke får gjort pga. smerter.", "2. Tentativ diagnose?", "3. Neste steg i utredning?"],
-    timeMinutes: 7,
-    scoringCriteria: [
-      { id:1, category:"Kommunikasjon", description:"Hilser på pasienten", maxPoints:1, hint:"God kommunikasjon gir poeng" },
-      { id:2, category:"Undersøkelse", description:"Instruerer i avkledning", maxPoints:1, hint:"Be pasienten ta av genseren" },
-      { id:3, category:"Undersøkelse", description:"Inspeksjon (step-deformitet?)", maxPoints:1, hint:"Se etter step-deformitet over AC-leddet" },
-      { id:4, category:"Undersøkelse", description:"Aktiv bevegelighet", maxPoints:1, hint:"Hva klarer pasienten?" },
-      { id:5, category:"Undersøkelse", description:"Passiv bevegelighet", maxPoints:1, hint:"Sammenlign med frisk side" },
-      { id:6, category:"Undersøkelse", description:"Isometriske tester", maxPoints:1, hint:"Styrketest" },
-      { id:7, category:"Spesifikke prøver", description:"Cross body-test", maxPoints:1, hint:"Provoserer AC-leddet" },
-      { id:8, category:"Spesifikke prøver", description:"Impingementtest", maxPoints:1, hint:"Neer eller Hawkins-Kennedy" },
-      { id:9, category:"Spesifikke prøver", description:"Apprehension/relocation", maxPoints:1, hint:"Fremre instabilitet" },
-      { id:10, category:"Spesifikke prøver", description:"Sulcustegn", maxPoints:1, hint:"Inferior instabilitet" },
-      { id:11, category:"Undersøkelse", description:"Palpasjon", maxPoints:1, hint:"AC-ledd, clavicula, subacromialt" },
-      { id:12, category:"Undersøkelse", description:"Nevrologi inkl. distal NVS", maxPoints:1, hint:"Sensibilitet, motorikk, puls distalt" },
-      { id:13, category:"Diagnose", description:"AC-luksasjon", maxPoints:1, hint:"Traume + step-deformitet" },
-      { id:14, category:"Utredning", description:"Røntgen av skulder", maxPoints:1, hint:"Førstelinje ved traumatisk skulder" },
+    id:"skulder3",
+    stationName:"Skulder 3 – AC-luksasjon",
+    scenario:"Du jobber som fastlege. En 21 år gammel mann har skadet skulderen under en hockeykamp – ble taklet og landet på venstre side på isen. Vondt i venstre skulder. Ingen tidligere skulderskader.",
+    patientInfo:{name:"Markus Dahl",age:"21",gender:"mann",complaint:"smerter i venstre skulder etter taklingsskade"},
+    patientContext:"Du har en AC-luksasjon grad II-III i venstre skulder. Du har tydelig step-deformitet over AC-leddet. Veldig vondt ved palpasjon over AC-leddet og ved cross body test. Du klarer ikke løfte armen over 60 grader aktivt pga. smerter. Apprehension test er positiv. Du er ung og frisk ellers.",
+    tasks:["1. Gjør en undersøkelse (beskriv det du ikke kan gjøre pga. smerter)","2. Tentativ diagnose?","3. Neste steg i utredning?"],
+    timeMinutes:7,
+    scoringCriteria:[
+      {id:1,category:"Kommunikasjon",description:"Hilser på pasienten",maxPoints:1,keywords:["hei","god dag","mitt navn","jeg heter","presentere"]},
+      {id:2,category:"Undersøkelse",description:"Instruerer i avkledning",maxPoints:1,keywords:["kle av","ta av","genser","skjorte","avkledning"]},
+      {id:3,category:"Undersøkelse",description:"Inspeksjon (step-deformitet?)",maxPoints:1,keywords:["inspisere","se på","inspeksjon","step","deformitet","hevelse","blåmerke"]},
+      {id:4,category:"Undersøkelse",description:"Aktiv bevegelighet",maxPoints:1,keywords:["aktiv","løfte","heve","beveg","prøv å løfte"]},
+      {id:5,category:"Undersøkelse",description:"Passiv bevegelighet",maxPoints:1,keywords:["passiv","jeg beveger","hjelper","løfter armen din"]},
+      {id:6,category:"Undersøkelse",description:"Isometriske tester",maxPoints:1,keywords:["isometrisk","motstand","trykk mot","hold imot"]},
+      {id:7,category:"Spesifikke prøver",description:"Cross body-test",maxPoints:1,keywords:["cross body","krysser","adduksjon","ac-ledd test"]},
+      {id:8,category:"Spesifikke prøver",description:"Impingementtest",maxPoints:1,keywords:["impingement","neer","hawkins","kennedy"]},
+      {id:9,category:"Spesifikke prøver",description:"Apprehension/relocation",maxPoints:1,keywords:["apprehension","relocation","fremre","instabilitet","forskyve"]},
+      {id:10,category:"Spesifikke prøver",description:"Sulcustegn",maxPoints:1,keywords:["sulcus","trekker ned","inferior","instabilitet"]},
+      {id:11,category:"Undersøkelse",description:"Palpasjon",maxPoints:1,keywords:["palper","kjenne etter","trykke","ømhet","subacromial","clavicula","ac-ledd"]},
+      {id:12,category:"Undersøkelse",description:"Nevrologi inkl. distal NVS",maxPoints:1,keywords:["nevrologi","sensibilitet","motorikk","puls","nvs","kapillær","distal","nervefunksjon"]},
     ],
-    totalMaxPoints: 14, passingScore: 9,
+    totalMaxPoints:12, passingScore:8,
+    sensorQuestions:[
+      {id:"diag",question:"Bra jobbet med undersøkelsen! Basert på dine funn – hva er den tentative diagnosen, og hva er det kliniske tegnet som peker sterkest mot denne diagnosen?",scoringCriteriaIds:[13],points:1},
+      {id:"utred",question:"Godt svar. Hva er neste steg i utredningen av denne pasienten, og hvorfor er det viktig?",scoringCriteriaIds:[14],points:1},
+    ],
+    sensorCriteria:[
+      {id:13,category:"Diagnose",description:"AC-luksasjon (step-deformitet som klinisk tegn)",maxPoints:1},
+      {id:14,category:"Utredning",description:"Røntgen av skulder som første steg",maxPoints:1},
+    ],
   },
 ];
 
-// ═══════════════════════════════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════════════════════
-let currentStation = null;
-let chatHistory = [];
-let timerInterval = null;
-let timeLeft = 0;
-let isRecording = false;
-let isTranscribing = false;
-let mediaRecorder = null;
-let audioChunks = [];
-let evalResult = null;
-let manualMode = false;
-let manualScores = {};
+let station=null,chatHistory=[],scores={},timerInterval=null,timeLeft=0;
+let scoringTimerInterval=null,scoringTimeLeft=180;
+let isRec=false,isTrans=false,mediaRec=null,audioChunks=[];
+let sensorIndex=0,sensorAnswers=[];
+let isSensorRec=false,isSensorTrans=false,sensorMediaRec=null,sensorChunks=[];
 
-// ═══════════════════════════════════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active');
-    s.style.display = 'none';
-  });
-  const el = document.getElementById('screen-' + id);
-  if (id === 'practice') {
-    el.style.display = 'flex';
-  } else {
-    el.style.display = 'block';
-  }
-  el.classList.add('active');
+// NAV
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+  const el=document.getElementById('s-'+id);
+  el.style.display=id==='practice'?'flex':'block';
+  if(id==='practice') el.style.flexDirection='column';
 }
 
-function showMenu() {
-  stopTimer();
-  showScreen('menu');
-}
-function showPractice() { showScreen('practice'); }
-
-// ═══════════════════════════════════════════════════════════════════════
 // MENU
-// ═══════════════════════════════════════════════════════════════════════
-function renderMenu() {
-  const list = document.getElementById('station-list');
-  list.innerHTML = STATIONS.map(s => `
+function renderMenu(){
+  document.getElementById('station-list').innerHTML=STATIONS.map(s=>`
     <div onclick="selectStation('${s.id}')"
-      style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color 0.15s"
+      style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .15s"
       onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
       <div>
         <div style="font-weight:600;font-size:15px">${s.stationName}</div>
         <div style="color:var(--muted);font-family:var(--mono);font-size:12px;margin-top:4px">${s.patientInfo.age} år · ${s.patientInfo.gender} · ${s.patientInfo.complaint}</div>
+        ${s.sensorQuestions&&s.sensorQuestions.length>0?'<div style="margin-top:6px"><span style="background:rgba(232,160,32,.12);color:var(--warning);border:1px solid rgba(232,160,32,.3);border-radius:3px;padding:1px 7px;font-size:10px;font-family:var(--mono);font-weight:700">+ SENSOR</span></div>':''}
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-        <div style="text-align:right">
-          <div style="color:var(--success);font-family:var(--mono);font-size:14px;font-weight:700">${s.totalMaxPoints}p</div>
-          <div style="color:var(--dim);font-family:var(--mono);font-size:10px">${s.timeMinutes} min</div>
-        </div>
-        <span style="color:var(--muted);font-size:18px">→</span>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="color:var(--success);font-family:var(--mono);font-size:14px;font-weight:700">${s.totalMaxPoints+(s.sensorCriteria||[]).reduce((a,c)=>a+c.maxPoints,0)}p</div>
+        <div style="color:var(--dim);font-family:var(--mono);font-size:10px">${s.timeMinutes} min</div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-function selectStation(id) {
-  currentStation = STATIONS.find(s => s.id === id);
+function selectStation(id){
+  station=STATIONS.find(s=>s.id===id);
   renderBriefing();
-  showScreen('briefing');
+  go('briefing');
 }
 
-// ═══════════════════════════════════════════════════════════════════════
 // BRIEFING
-// ═══════════════════════════════════════════════════════════════════════
-function renderBriefing() {
-  const s = currentStation;
-  document.getElementById('briefing-chip').innerHTML = `<span style="background:var(--accent)18;color:var(--accent);border:1px solid var(--accent)30;border-radius:3px;padding:1px 7px;font-size:10px;font-family:var(--mono);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Klinisk stasjon</span>`;
-  document.getElementById('briefing-title').textContent = s.stationName;
-  document.getElementById('briefing-scenario').textContent = s.scenario;
-  document.getElementById('briefing-tasks').innerHTML = s.tasks.map(t => `<div style="font-size:14px;line-height:1.5">${t}</div>`).join('');
-  document.getElementById('b-time').textContent = s.timeMinutes;
-  document.getElementById('b-max').textContent = s.totalMaxPoints;
-  document.getElementById('b-pass').textContent = s.passingScore;
+function renderBriefing(){
+  document.getElementById('b-chip').innerHTML=`<span style="background:rgba(45,125,210,.12);color:var(--accent);border:1px solid rgba(45,125,210,.3);border-radius:3px;padding:1px 7px;font-size:10px;font-family:var(--mono);font-weight:700;text-transform:uppercase">Klinisk stasjon</span>`;
+  document.getElementById('b-title').textContent=station.stationName;
+  document.getElementById('b-scenario').textContent=station.scenario;
+  document.getElementById('b-tasks').innerHTML=station.tasks.map(t=>`<div>${t}</div>`).join('');
+  document.getElementById('b-time').textContent=station.timeMinutes;
+  const totalMax=station.totalMaxPoints+(station.sensorCriteria||[]).reduce((a,c)=>a+c.maxPoints,0);
+  document.getElementById('b-max').textContent=totalMax;
+  document.getElementById('b-pass').textContent=Math.ceil(totalMax*0.65);
 }
 
-// ═══════════════════════════════════════════════════════════════════════
 // PRACTICE
-// ═══════════════════════════════════════════════════════════════════════
-function startPractice() {
-  chatHistory = [];
-  evalResult = null;
-  manualMode = false;
-  manualScores = {};
-  document.getElementById('chat-inner').innerHTML = '';
-  document.getElementById('msg-input').value = '';
-
-  const s = currentStation;
-  document.getElementById('p-title').textContent = s.stationName;
-  document.getElementById('p-patient').textContent = `Pasient: ${s.patientInfo.name}, ${s.patientInfo.age} år`;
-  document.getElementById('hint-tasks').innerHTML = s.tasks.map(t => `<span>${t}</span>`).join('');
-
-  showScreen('practice');
+function startPractice(){
+  chatHistory=[];scores={};sensorIndex=0;sensorAnswers=[];
+  document.getElementById('chat-inner').innerHTML='';
+  document.getElementById('msg-input').value='';
+  document.getElementById('p-title').textContent=station.stationName;
+  document.getElementById('p-patient').textContent=`Pasient: ${station.patientInfo.name}, ${station.patientInfo.age} år`;
+  document.getElementById('hint-tasks').innerHTML=station.tasks.map(t=>`<span>${t}</span>`).join('');
+  updateLiveScore();
+  go('practice');
   startTimer();
-
-  // Opening patient message
-  const opener = `*Pasienten sitter og virker ukomfortabel*\n\nHei... jeg er glad du kan se meg. Det gjør ganske vondt, og jeg er litt bekymret.`;
-  addMessage('assistant', opener);
-  chatHistory.push({ role: 'assistant', content: opener });
+  const opener=`*Pasienten sitter og virker ukomfortabel*\n\nHei... takk for at du tar deg tid til meg. Det gjør vondt og jeg er litt bekymret.`;
+  addMsg('assistant',opener);
+  chatHistory.push({role:'assistant',content:opener});
 }
 
-function startTimer() {
+function startTimer(){
   stopTimer();
-  timeLeft = currentStation.timeMinutes * 60;
-  updateTimerDisplay();
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-    if (timeLeft <= 0) stopTimer();
-  }, 1000);
+  timeLeft=station.timeMinutes*60;
+  renderTimer();
+  timerInterval=setInterval(()=>{
+    timeLeft--;renderTimer();
+    if(timeLeft<=0){stopTimer();finishExam();}
+  },1000);
+}
+function stopTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+function renderTimer(){
+  const m=Math.floor(timeLeft/60),s=String(timeLeft%60).padStart(2,'0');
+  const el=document.getElementById('timer');
+  el.textContent=`${m}:${s}`;
+  const c=timeLeft<60?'var(--danger)':timeLeft<120?'var(--warning)':'var(--success)';
+  el.style.color=c;el.style.borderColor=c+'60';
+}
+function toggleHint(){
+  const b=document.getElementById('hint-bar');
+  b.style.display=b.style.display==='none'?'block':'none';
+}
+function updateLiveScore(){
+  const total=Object.values(scores).reduce((a,b)=>a+b,0);
+  const max=station.totalMaxPoints;
+  const pct=max>0?Math.round(total/max*100):0;
+  const c=pct>=65?'var(--success)':pct>=40?'var(--warning)':'var(--danger)';
+  document.getElementById('live-bar').style.width=pct+'%';
+  document.getElementById('live-bar').style.background=c;
+  document.getElementById('live-score').textContent=`${total} / ${max}`;
+  document.getElementById('live-score').style.color=c;
 }
 
-function stopTimer() {
-  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+async function sendMsg(){
+  const inp=document.getElementById('msg-input');
+  const txt=inp.value.trim();
+  if(!txt||isTrans)return;
+  inp.value='';
+  document.getElementById('send-btn').disabled=true;
+  addMsg('user',txt);
+  chatHistory.push({role:'user',content:txt});
+  const tid=addTyping();
+  try{
+    const raw=await callGroqPatient(txt);
+    removeEl(tid);
+    let reply='',newScores={};
+    try{
+      const p=JSON.parse(raw);
+      reply=p.reply||'';
+      newScores=p.scores||{};
+    }catch(e){reply=raw;}
+    addMsg('assistant',reply);
+    chatHistory.push({role:'assistant',content:reply});
+    const earned=[];
+    for(const[id,pts]of Object.entries(newScores)){
+      const crit=station.scoringCriteria.find(c=>c.id===parseInt(id));
+      if(crit&&pts>0){
+        const prev=scores[id]||0;
+        if(pts>prev){scores[id]=Math.min(crit.maxPoints,pts);earned.push(crit.description);}
+      }
+    }
+    updateLiveScore();
+    if(earned.length>0)showToast(earned);
+  }catch(e){
+    removeEl(tid);
+    addMsg('assistant','*[Noe gikk galt — prøv igjen]*');
+  }finally{document.getElementById('send-btn').disabled=false;}
 }
 
-function updateTimerDisplay() {
-  const m = Math.floor(timeLeft / 60);
-  const s = String(timeLeft % 60).padStart(2, '0');
-  const el = document.getElementById('timer');
-  el.textContent = `${m}:${s}`;
-  const color = timeLeft < 60 ? 'var(--danger)' : timeLeft < 120 ? 'var(--warning)' : 'var(--success)';
-  el.style.color = color;
-  el.style.borderColor = color + '60';
+function showToast(descs){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:90px;right:20px;background:var(--success);color:#fff;padding:8px 14px;border-radius:8px;font-family:var(--mono);font-size:12px;z-index:9999;max-width:260px;animation:fadeIn .3s ease;line-height:1.6';
+  t.innerHTML=descs.map(d=>`✓ ${esc(d)}`).join('<br>');
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
 }
 
-function toggleHint() {
-  const bar = document.getElementById('hint-bar');
-  bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+function finishExam(){
+  stopTimer();
+  if(station.sensorQuestions&&station.sensorQuestions.length>0){startSensor();}
+  else{showScoring();}
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+// GROQ PATIENT
+async function callGroqPatient(msg){
+  const criteria=station.scoringCriteria.map(c=>`ID ${c.id}: "${c.description}" (maks ${c.maxPoints}p) — nøkkelord: ${c.keywords.join(', ')}`).join('\n');
+  const system=`Du er en skuespillerpasient i en norsk OSKE-eksamen og en skjult vurderer.
+
+PASIENT: ${station.patientInfo.name}, ${station.patientInfo.age} år, ${station.patientInfo.gender}
+TILSTAND: ${station.patientContext}
+
+PASIENTREGLER:
+1. Svar alltid på norsk bokmål, hold deg i rollen
+2. Vis realistiske emosjoner (smerte, engstelse)  
+3. Avslør kun informasjon hvis studenten spør direkte
+4. Hold svar korte (2-4 setninger)
+5. Beskriv realistisk hvordan undersøkelser føles
+
+SCORINGSKRITERIER (hemmelig):
+${criteria}
+
+Svar med GYLDIG JSON:
+{"reply":"pasientens svar","scores":{"1":0,"2":1}}
+
+I scores: sett 1 for kriterier studenten NETTOPP oppfylte med denne meldingen. Sett 0 ellers. Vær generøs – hvis studenten nevner nøkkelord eller utfører handlingen, gi poeng.`;
+
+  return await callGroq(system,[...chatHistory,{role:'user',content:msg}]);
 }
 
-async function sendMessage() {
-  const input = document.getElementById('msg-input');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  setSendDisabled(true);
+// SENSOR
+function startSensor(){
+  sensorIndex=0;
+  renderSensorQ();
+  go('sensor');
+}
+function renderSensorQ(){
+  const q=station.sensorQuestions[sensorIndex];
+  document.getElementById('sensor-question').textContent=q.question;
+  document.getElementById('sensor-input').value='';
+  document.getElementById('sensor-progress').textContent=`Spørsmål ${sensorIndex+1} av ${station.sensorQuestions.length}`;
+}
+async function submitSensorAnswer(){
+  const ans=document.getElementById('sensor-input').value.trim();
+  if(!ans)return;
+  const btn=document.getElementById('sensor-submit-btn');
+  btn.disabled=true;btn.textContent='Vurderer...';
+  const q=station.sensorQuestions[sensorIndex];
+  const criteriaForQ=(station.sensorCriteria||[]).filter(c=>q.scoringCriteriaIds.includes(c.id));
+  let feedback='';
+  try{
+    const evalPrompt=`Vurder dette studentsvaret på et OSKE sensørspørsmål.
+Spørsmål: "${q.question}"
+Studentens svar: "${ans}"
+Kriterier: ${criteriaForQ.map(c=>`ID ${c.id}: "${c.description}" (maks ${c.maxPoints}p)`).join('; ')}
+Svar med gyldig JSON: {"scores":{"${criteriaForQ[0]?.id}":0},"feedback":"kort norsk tilbakemelding på 1-2 setninger"}`;
+    const raw=await callGroq('Du er OSKE-eksaminator. Svar kun med gyldig JSON.',[{role:'user',content:evalPrompt}]);
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    for(const[id,pts]of Object.entries(parsed.scores||{})){
+      const crit=criteriaForQ.find(c=>c.id===parseInt(id));
+      if(crit)scores[id]=Math.min(crit.maxPoints,pts);
+    }
+    feedback=parsed.feedback||'';
+  }catch(e){feedback='';}
+  sensorAnswers.push({question:q.question,answer:ans,feedback});
+  btn.disabled=false;btn.textContent='Svar →';
+  sensorIndex++;
+  if(sensorIndex<station.sensorQuestions.length){renderSensorQ();}
+  else{showScoring();}
+}
 
-  addMessage('user', text);
-  chatHistory.push({ role: 'user', content: text });
+// SCORING
+function showScoring(){
+  go('scoring');
+  startScoringTimer();
+  renderScoring();
+}
+function startScoringTimer(){
+  scoringTimeLeft=180;updateScoringTimer();
+  scoringTimerInterval=setInterval(()=>{
+    scoringTimeLeft--;updateScoringTimer();
+    if(scoringTimeLeft<=0)clearInterval(scoringTimerInterval);
+  },1000);
+}
+function updateScoringTimer(){
+  const m=Math.floor(scoringTimeLeft/60),s=String(scoringTimeLeft%60).padStart(2,'0');
+  const el=document.getElementById('score-countdown');
+  if(el)el.textContent=`Gjennomgangstid: ${m}:${s}`;
+}
+function renderScoring(){
+  const allCriteria=[...station.scoringCriteria,...(station.sensorCriteria||[])];
+  const total=Object.values(scores).reduce((a,b)=>a+b,0);
+  const max=allCriteria.reduce((a,c)=>a+c.maxPoints,0);
+  const pct=max>0?Math.round(total/max*100):0;
+  const passed=pct>=65;
+  const bc=pct>=65?'var(--success)':pct>=40?'var(--warning)':'var(--danger)';
 
-  // Typing indicator
-  const typingId = addTyping();
+  document.getElementById('score-header').innerHTML=`
+    <div style="font-size:40px;margin-bottom:8px">${passed?'✅':'📚'}</div>
+    <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:${passed?'var(--success)':'var(--danger)'}">${total} / ${max}</div>
+    <div style="color:var(--muted);font-family:var(--mono);font-size:13px;margin-top:4px">${pct}% — ${passed?'BESTÅTT':'IKKE BESTÅTT'} (grense: 65%)</div>
+    <div style="margin-top:14px"><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${bc}"></div></div></div>`;
 
-  try {
-    const systemPrompt = buildPatientPrompt();
-    const reply = await callClaude(systemPrompt, chatHistory);
-    removeTyping(typingId);
-    addMessage('assistant', reply);
-    chatHistory.push({ role: 'assistant', content: reply });
-  } catch(e) {
-    removeTyping(typingId);
-    addMessage('assistant', '*[Noe gikk galt — prøv igjen]*');
-  } finally {
-    setSendDisabled(false);
+  // Sensor answers
+  if(sensorAnswers.length>0){
+    document.getElementById('score-sensor-answers').innerHTML=sensorAnswers.map(sa=>`
+      <div class="panel" style="margin-bottom:12px;border-left:3px solid var(--warning)">
+        <div style="font-family:var(--mono);color:var(--warning);font-size:11px;margin-bottom:6px">🎓 SENSOR</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">${esc(sa.question)}</div>
+        <div style="font-size:14px;line-height:1.5;margin-bottom:${sa.feedback?'8px':'0'}">${esc(sa.answer)}</div>
+        ${sa.feedback?`<div style="font-family:var(--mono);font-size:12px;color:var(--accent);font-style:italic">↳ ${esc(sa.feedback)}</div>`:''}
+      </div>`).join('');
   }
+
+  // Detail
+  const cats={};
+  allCriteria.forEach(c=>{if(!cats[c.category])cats[c.category]=[];cats[c.category].push(c);});
+  let html=`<div style="font-family:var(--mono);color:var(--muted);font-size:11px;letter-spacing:.1em;margin-bottom:16px">DETALJERT SKÅRING</div>`;
+  for(const[cat,items]of Object.entries(cats)){
+    html+=`<div style="margin-bottom:18px"><div style="color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:.1em;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)">${cat.toUpperCase()}</div>`;
+    for(const item of items){
+      const got=scores[item.id]||0,max2=item.maxPoints;
+      const c=got>=max2?'var(--success)':got>0?'var(--warning)':'var(--danger)';
+      const icon=got>=max2?'✅':got>0?'⚡':'❌';
+      html+=`<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px">
+          <span style="font-size:13px;line-height:1.4;flex:1">${icon} ${esc(item.description)}</span>
+          <span style="color:${c};font-family:var(--mono);font-size:13px;font-weight:700;white-space:nowrap">${got}/${max2}</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${max2>0?Math.round(got/max2*100):0}%;background:${c}"></div></div>
+      </div>`;
+    }
+    html+='</div>';
+  }
+  document.getElementById('score-detail').innerHTML=html;
 }
 
-function setSendDisabled(v) {
-  document.getElementById('send-btn').disabled = v;
+// GROQ
+async function callGroq(system,messages){
+  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
+    body:JSON.stringify({model:GROQ_MODEL,messages:[{role:'system',content:system},...messages],temperature:0.7,max_tokens:600})
+  });
+  const data=await res.json();
+  if(data.error)throw new Error(data.error.message);
+  return data.choices[0].message.content;
 }
 
-function addMessage(role, content) {
-  const inner = document.getElementById('chat-inner');
-  const div = document.createElement('div');
-  div.style.cssText = `display:flex;justify-content:${role==='user'?'flex-end':'flex-start'}`;
-  
-  const avatar = role === 'assistant' ? `<div style="width:32px;height:32px;border-radius:50%;background:var(--highlight);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;margin-right:8px;flex-shrink:0;margin-top:2px">🤒</div>` : '';
-  
-  div.innerHTML = `${avatar}<div style="max-width:75%;background:${role==='user'?'var(--accent)':'var(--panel)'};color:var(--text);padding:10px 14px;border-radius:${role==='user'?'12px 12px 4px 12px':'12px 12px 12px 4px'};border:1px solid ${role==='user'?'rgba(45,125,210,.6)':'var(--border)'};font-size:14px;line-height:1.6;white-space:pre-wrap">${escHtml(content)}</div>`;
-  
+// RECORDING
+async function toggleRec(){
+  if(isTrans)return;
+  if(isRec){mediaRec?.stop();setRecUI(false);return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const mime=['audio/webm;codecs=opus','audio/webm','audio/ogg','audio/mp4'].find(m=>MediaRecorder.isTypeSupported(m))||'';
+    mediaRec=new MediaRecorder(stream,mime?{mimeType:mime}:{});
+    audioChunks=[];
+    mediaRec.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+    mediaRec.onstop=async()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      setTransUI(true);
+      try{const t=await transcribe(audioChunks,mediaRec.mimeType);if(t){const i=document.getElementById('msg-input');i.value=i.value?i.value+' '+t:t;}}
+      finally{setTransUI(false);}
+    };
+    mediaRec.start();setRecUI(true);
+  }catch(e){alert('Mikrofon tilgang nektet.');}
+}
+async function toggleSensorRec(){
+  if(isSensorTrans)return;
+  if(isSensorRec){sensorMediaRec?.stop();setSRec(false);return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const mime=['audio/webm;codecs=opus','audio/webm','audio/ogg','audio/mp4'].find(m=>MediaRecorder.isTypeSupported(m))||'';
+    sensorMediaRec=new MediaRecorder(stream,mime?{mimeType:mime}:{});
+    sensorChunks=[];
+    sensorMediaRec.ondataavailable=e=>{if(e.data.size>0)sensorChunks.push(e.data);};
+    sensorMediaRec.onstop=async()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      setSTrans(true);
+      try{const t=await transcribe(sensorChunks,sensorMediaRec.mimeType);if(t){const i=document.getElementById('sensor-input');i.value=i.value?i.value+' '+t:t;}}
+      finally{setSTrans(false);}
+    };
+    sensorMediaRec.start();setSRec(true);
+  }catch(e){alert('Mikrofon tilgang nektet.');}
+}
+async function transcribe(chunks,mimeType){
+  const blob=new Blob(chunks,{type:mimeType||'audio/webm'});
+  const ext=(mimeType||'').includes('mp4')?'mp4':(mimeType||'').includes('ogg')?'ogg':'webm';
+  const fd=new FormData();
+  fd.append('file',blob,`rec.${ext}`);
+  fd.append('model',GROQ_WHISPER);
+  fd.append('language','no');
+  fd.append('response_format','text');
+  const r=await fetch('https://api.groq.com/openai/v1/audio/transcriptions',{method:'POST',headers:{Authorization:`Bearer ${GROQ_KEY}`},body:fd});
+  return (await r.text()).trim();
+}
+function setRecUI(a){
+  isRec=a;
+  const b=document.getElementById('mic-btn'),i=document.getElementById('rec-ind'),d=document.getElementById('rec-dot'),t=document.getElementById('rec-txt');
+  b.textContent=a?'⏹️':'🎙️';b.style.borderColor=a?'var(--danger)':'var(--border)';b.style.background=a?'rgba(217,79,79,.2)':'var(--panel)';
+  i.style.display=a?'flex':'none';
+  if(a){i.style.background='rgba(217,79,79,.1)';i.style.border='1px solid rgba(217,79,79,.3)';d.style.background='var(--danger)';t.style.color='var(--danger)';t.textContent='TAR OPP... (trykk igjen for å stoppe)';}
+}
+function setTransUI(a){
+  isTrans=a;
+  const b=document.getElementById('mic-btn'),i=document.getElementById('rec-ind'),d=document.getElementById('rec-dot'),t=document.getElementById('rec-txt');
+  b.textContent=a?'⏳':'🎙️';b.disabled=a;i.style.display=a?'flex':'none';
+  if(a){i.style.background='rgba(45,125,210,.1)';i.style.border='1px solid rgba(45,125,210,.3)';d.style.background='var(--accent)';t.style.color='var(--accent)';t.textContent='TRANSKRIBERER...';}
+}
+function setSRec(a){
+  isSensorRec=a;
+  const b=document.getElementById('sensor-mic-btn'),i=document.getElementById('sensor-rec-ind'),d=document.getElementById('sensor-rec-dot'),t=document.getElementById('sensor-rec-txt');
+  b.textContent=a?'⏹️':'🎙️';b.style.borderColor=a?'var(--danger)':'var(--border)';b.style.background=a?'rgba(217,79,79,.2)':'var(--panel)';
+  i.style.display=a?'flex':'none';
+  if(a){i.style.background='rgba(217,79,79,.1)';i.style.border='1px solid rgba(217,79,79,.3)';d.style.background='var(--danger)';t.style.color='var(--danger)';t.textContent='TAR OPP... (trykk igjen for å stoppe)';}
+}
+function setSTrans(a){
+  isSensorTrans=a;
+  const b=document.getElementById('sensor-mic-btn'),i=document.getElementById('sensor-rec-ind'),d=document.getElementById('sensor-rec-dot'),t=document.getElementById('sensor-rec-txt');
+  b.textContent=a?'⏳':'🎙️';b.disabled=a;i.style.display=a?'flex':'none';
+  if(a){i.style.background='rgba(45,125,210,.1)';i.style.border='1px solid rgba(45,125,210,.3)';d.style.background='var(--accent)';t.style.color='var(--accent)';t.textContent='TRANSKRIBERER...';}
+}
+
+// HELPERS
+function addMsg(role,content){
+  const inner=document.getElementById('chat-inner');
+  const div=document.createElement('div');
+  div.className='fade-in';
+  div.style.cssText=`display:flex;justify-content:${role==='user'?'flex-end':'flex-start'}`;
+  const av=role==='assistant'?`<div style="width:32px;height:32px;border-radius:50%;background:var(--hl);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;margin-right:8px;flex-shrink:0;margin-top:2px">🤒</div>`:'';
+  div.innerHTML=`${av}<div style="max-width:75%;background:${role==='user'?'var(--accent)':'var(--panel)'};color:var(--text);padding:10px 14px;border-radius:${role==='user'?'12px 12px 4px 12px':'12px 12px 12px 4px'};border:1px solid ${role==='user'?'rgba(45,125,210,.6)':'var(--border)'};font-size:14px;line-height:1.6;white-space:pre-wrap">${esc(content)}</div>`;
   inner.appendChild(div);
-  document.getElementById('chat').scrollTop = 99999;
-  return div;
+  document.getElementById('chat').scrollTop=99999;
 }
-
-function addTyping() {
-  const id = 'typing-' + Date.now();
-  const inner = document.getElementById('chat-inner');
-  inner.insertAdjacentHTML('beforeend', `<div id="${id}" style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:var(--highlight);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px">🤒</div><div style="color:var(--muted);font-family:var(--mono);font-size:13px">Pasienten tenker...</div></div>`);
-  document.getElementById('chat').scrollTop = 99999;
+function addTyping(){
+  const id='t'+Date.now();
+  document.getElementById('chat-inner').insertAdjacentHTML('beforeend',`<div id="${id}" style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:var(--hl);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px">🤒</div><div style="color:var(--muted);font-family:var(--mono);font-size:13px">Pasienten tenker...</div></div>`);
+  document.getElementById('chat').scrollTop=99999;
   return id;
 }
+function removeEl(id){document.getElementById(id)?.remove();}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function removeTyping(id) {
-  document.getElementById(id)?.remove();
-}
-
-function escHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-async function finishPractice() {
-  stopTimer();
-  showScreen('scoring');
-  await evaluatePerformance();
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// RECORDING (Groq Whisper)
-// ═══════════════════════════════════════════════════════════════════════
-async function toggleRecording() {
-  if (isTranscribing) return;
-
-  if (isRecording) {
-    mediaRecorder?.stop();
-    setRecordingUI(false);
-    return;
-  }
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mimeType = ['audio/webm;codecs=opus','audio/webm','audio/ogg','audio/mp4']
-      .find(m => MediaRecorder.isTypeSupported(m)) || '';
-    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-    audioChunks = [];
-
-    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-    mediaRecorder.onstop = async () => {
-      stream.getTracks().forEach(t => t.stop());
-      setTranscribingUI(true);
-      try {
-        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-        const ext = (mediaRecorder.mimeType||'').includes('mp4') ? 'mp4' : (mediaRecorder.mimeType||'').includes('ogg') ? 'ogg' : 'webm';
-        const fd = new FormData();
-        fd.append('file', blob, `rec.${ext}`);
-        fd.append('model', 'whisper-large-v3');
-        fd.append('language', 'no');
-        fd.append('response_format', 'text');
-
-        const res = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${GROQ_KEY}` },
-          body: fd
-        });
-        const text = await res.text();
-        if (text?.trim()) {
-          const inp = document.getElementById('msg-input');
-          inp.value = inp.value ? inp.value + ' ' + text.trim() : text.trim();
-        }
-      } catch(e) {
-        console.error('Groq error:', e);
-        alert('Transkripsjon feilet. Sjekk internettforbindelsen.');
-      } finally {
-        setTranscribingUI(false);
-      }
-    };
-
-    mediaRecorder.start();
-    setRecordingUI(true);
-  } catch(e) {
-    alert('Mikrofon tilgang ble nektet. Tillat mikrofon i nettleserinnstillingene.');
-  }
-}
-
-function setRecordingUI(active) {
-  isRecording = active;
-  const btn = document.getElementById('mic-btn');
-  const ind = document.getElementById('rec-indicator');
-  const dot = document.getElementById('rec-dot');
-  const txt = document.getElementById('rec-text');
-  const inp = document.getElementById('msg-input');
-
-  btn.textContent = active ? '⏹️' : '🎙️';
-  btn.style.borderColor = active ? 'var(--danger)' : 'var(--border)';
-  btn.style.background = active ? 'rgba(217,79,79,.2)' : 'var(--panel)';
-  ind.style.display = active ? 'flex' : 'none';
-  if (active) {
-    ind.style.background = 'rgba(217,79,79,.1)';
-    ind.style.border = '1px solid rgba(217,79,79,.3)';
-    dot.style.background = 'var(--danger)';
-    txt.style.color = 'var(--danger)';
-    txt.textContent = 'TAR OPP... (trykk igjen for å stoppe)';
-    inp.placeholder = 'Snakker du nå... 🎙️';
-  } else {
-    inp.placeholder = 'Snakk eller skriv til pasienten...';
-  }
-}
-
-function setTranscribingUI(active) {
-  isTranscribing = active;
-  const btn = document.getElementById('mic-btn');
-  const ind = document.getElementById('rec-indicator');
-  const dot = document.getElementById('rec-dot');
-  const txt = document.getElementById('rec-text');
-
-  btn.textContent = active ? '⏳' : '🎙️';
-  btn.disabled = active;
-  ind.style.display = active ? 'flex' : 'none';
-  if (active) {
-    ind.style.background = 'rgba(45,125,210,.1)';
-    ind.style.border = '1px solid rgba(45,125,210,.3)';
-    dot.style.background = 'var(--accent)';
-    txt.style.color = 'var(--accent)';
-    txt.textContent = 'TRANSKRIBERER...';
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// AI CALLS
-// ═══════════════════════════════════════════════════════════════════════
-async function callClaude(system, messages) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system,
-      messages,
-    })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.content[0].text;
-}
-
-function buildPatientPrompt() {
-  const s = currentStation;
-  const p = s.patientInfo;
-  return `Du er en skuespillerpasient i en norsk OSKE-eksamen. Spill rollen som pasient HELE tiden.
-
-PASIENT:
-- Navn: ${p.name}
-- Alder: ${p.age} år
-- Kjønn: ${p.gender}
-- Hovedplage: ${p.complaint}
-
-SCENARIE (kun for din forståelse):
-${s.scenario}
-
-OPPGAVER studenten skal utføre: ${s.tasks.join(', ')}
-
-REGLER:
-1. Svar KUN som pasient – aldri bryt rollen
-2. Svar på norsk bokmål
-3. Vis realistiske emosjoner (engstelse, smerte, forvirring)
-4. Avslør KUN informasjon hvis studenten spør direkte
-5. Hold svar korte (2-4 setninger)
-6. Hvis studenten gjør en klinisk undersøkelse, beskriv hvordan det føles
-7. Si "vet ikke" hvis du ikke vet noe som pasient
-8. IKKE gi medisinske råd eller diagnoser`;
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// SCORING
-// ═══════════════════════════════════════════════════════════════════════
-async function evaluatePerformance() {
-  const s = currentStation;
-  const conversation = chatHistory.map(m => `${m.role === 'user' ? 'STUDENT' : 'PASIENT'}: ${m.content}`).join('\n\n');
-
-  const prompt = `Du er en OSKE-eksaminator.
-
-SCORINGSKRITERIER:
-${s.scoringCriteria.map((c,i) => `${i+1}. [${c.category}] ${c.description} — maks ${c.maxPoints} poeng. Hint: ${c.hint}`).join('\n')}
-
-SAMTALE:
-${conversation}
-
-OPPGAVER: ${s.tasks.join('; ')}
-
-Vurder hvert kriterium. Svar KUN med gyldig JSON:
-{"scores":[{"id":1,"points":1,"maxPoints":2,"category":"...","description":"...","feedback":"..."}],"totalScore":0,"maxTotal":0,"percentage":0,"passed":false,"generalFeedback":"...","strengths":["..."],"improvements":["..."]}`;
-
-  document.getElementById('score-header').innerHTML = `<div style="font-size:36px;margin-bottom:8px">⏳</div><div style="font-family:var(--mono);font-size:16px;color:var(--muted)">Vurderer prestasjon...</div>`;
-
-  try {
-    const raw = await callClaude('Du er en OSKE-eksaminator. Svar kun med gyldig JSON.', [{ role: 'user', content: prompt }]);
-    const clean = raw.replace(/```json|```/g, '').trim();
-    evalResult = JSON.parse(clean);
-    renderScoring(false);
-  } catch(e) {
-    manualMode = true;
-    renderScoring(true);
-  }
-}
-
-function renderScoring(manual) {
-  const s = currentStation;
-  const scores = evalResult?.scores || [];
-  const total = manual ? calcManualTotal() : (evalResult?.totalScore ?? 0);
-  const maxTotal = s.totalMaxPoints;
-  const pct = manual ? calcManualPct() : (evalResult?.percentage ?? 0);
-  const passed = pct >= 65;
-
-  // Header
-  const barColor = pct >= 65 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--danger)';
-  document.getElementById('score-header').innerHTML = `
-    <div style="border-left:3px solid ${passed?'var(--success)':'var(--danger)'};padding-left:16px">
-      <div style="font-size:40px;margin-bottom:8px">${passed?'✅':'📚'}</div>
-      <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:${passed?'var(--success)':'var(--danger)'}">${total} / ${maxTotal}</div>
-      <div style="color:var(--muted);font-family:var(--mono);font-size:13px;margin-top:4px">${pct}% — ${passed?'BESTÅTT':'IKKE BESTÅTT'} (grense: 65%)</div>
-      <div style="margin-top:16px;max-width:400px;margin:16px auto 0">
-        <div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
-      </div>
-    </div>`;
-
-  // Strengths / improvements
-  let feedbackHtml = '';
-  if (evalResult?.strengths?.length) {
-    feedbackHtml += `<div class="panel" style="flex:1;min-width:200px;border-left:3px solid var(--success)"><div style="color:var(--success);font-family:var(--mono);font-size:11px;letter-spacing:.1em;margin-bottom:10px">STYRKER</div>${evalResult.strengths.map(s=>`<div style="font-size:13px;margin-bottom:4px">✓ ${escHtml(s)}</div>`).join('')}</div>`;
-  }
-  if (evalResult?.improvements?.length) {
-    feedbackHtml += `<div class="panel" style="flex:1;min-width:200px;border-left:3px solid var(--warning)"><div style="color:var(--warning);font-family:var(--mono);font-size:11px;letter-spacing:.1em;margin-bottom:10px">FORBEDRINGSOMRÅDER</div>${evalResult.improvements.map(s=>`<div style="font-size:13px;margin-bottom:4px">→ ${escHtml(s)}</div>`).join('')}</div>`;
-  }
-  document.getElementById('score-feedback').style.cssText = 'display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap';
-  document.getElementById('score-feedback').innerHTML = feedbackHtml;
-
-  // General
-  if (evalResult?.generalFeedback) {
-    document.getElementById('score-general').innerHTML = `<div class="panel" style="margin-bottom:20px;border-left:3px solid var(--accent)"><div style="color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.1em;margin-bottom:8px">GENERELL TILBAKEMELDING</div><p style="font-size:14px;line-height:1.6">${escHtml(evalResult.generalFeedback)}</p></div>`;
-  }
-
-  // Detailed scores
-  const cats = {};
-  const items = scores.length > 0 ? scores : s.scoringCriteria;
-  items.forEach(item => {
-    const cat = item.category || 'Annet';
-    if (!cats[cat]) cats[cat] = [];
-    cats[cat].push(item);
-  });
-
-  let detailHtml = `<div style="font-family:var(--mono);color:var(--muted);font-size:11px;letter-spacing:.1em;margin-bottom:16px">DETALJERT SKÅRING</div>`;
-  for (const [cat, items] of Object.entries(cats)) {
-    detailHtml += `<div style="margin-bottom:20px"><div style="color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:.1em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">${cat.toUpperCase()}</div>`;
-    for (const item of items) {
-      const got = manual ? (manualScores[item.id] ?? 0) : (item.points ?? 0);
-      const max = item.maxPoints;
-      const sc = got >= max ? 'var(--success)' : got > 0 ? 'var(--warning)' : 'var(--danger)';
-      detailHtml += `
-        <div style="margin-bottom:14px">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px">
-            <span style="font-size:13px;line-height:1.4;flex:1">${escHtml(item.description)}</span>
-            ${manual
-              ? `<div style="display:flex;align-items:center;gap:6px"><input type="number" min="0" max="${max}" value="${manualScores[item.id]??0}" onchange="updateManual(${item.id},this.value,${max})" style="width:44px;background:var(--panel);border:1px solid var(--borderL);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:13px;padding:3px 6px;text-align:center"><span style="color:var(--muted);font-family:var(--mono);font-size:12px">/${max}</span></div>`
-              : `<span style="color:${sc};font-family:var(--mono);font-size:13px;font-weight:700;min-width:40px;text-align:right">${got}/${max}</span>`
-            }
-          </div>
-          <div class="score-bar-track"><div class="score-bar-fill" style="width:${max>0?Math.round(got/max*100):0}%;background:${sc}"></div></div>
-          ${item.feedback ? `<div style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:4px;font-style:italic">${escHtml(item.feedback)}</div>` : ''}
-        </div>`;
-    }
-    detailHtml += '</div>';
-  }
-  if (manual) {
-    detailHtml += `<div id="manual-total" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600">Total</span><span style="font-family:var(--mono);font-size:16px;font-weight:700;color:${calcManualPct()>=65?'var(--success)':'var(--danger)'}">${calcManualTotal()}/${maxTotal} (${calcManualPct()}%)</span></div>`;
-  }
-  document.getElementById('score-detail').innerHTML = detailHtml;
-
-  // Toggle
-  if (evalResult) {
-    document.getElementById('score-toggle').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="toggleScoreMode()">${manual?'Vis AI-skåring':'Endre til manuell skåring'}</button>`;
-  }
-}
-
-function updateManual(id, val, max) {
-  manualScores[id] = Math.min(max, Math.max(0, parseInt(val)||0));
-  renderScoring(true);
-}
-
-function calcManualTotal() {
-  return Object.values(manualScores).reduce((a,b)=>a+b,0);
-}
-
-function calcManualPct() {
-  const max = currentStation.totalMaxPoints;
-  return max > 0 ? Math.round(calcManualTotal()/max*100) : 0;
-}
-
-function toggleScoreMode() {
-  manualMode = !manualMode;
-  renderScoring(manualMode);
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════════════════
 renderMenu();
+go('menu');
 </script>
 </body>
 </html>
