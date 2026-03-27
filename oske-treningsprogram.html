@@ -56,6 +56,11 @@ textarea,input{font-family:var(--sans);color:var(--text);outline:none}
     <div style="height:1px;background:var(--border);flex:1"></div>
   </div>
   <div id="station-list-hand" style="display:flex;flex-direction:column;gap:10px"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:24px 0 16px">
+    <span style="font-family:var(--mono);color:var(--dim);font-size:11px;letter-spacing:.15em">KNE</span>
+    <div style="height:1px;background:var(--border);flex:1"></div>
+  </div>
+  <div id="station-list-kne" style="display:flex;flex-direction:column;gap:10px"></div>
 </div>
 
 <!-- BRIEFING -->
@@ -432,6 +437,8 @@ function renderMenu(){
   const handIds=["hand1","hand2","hand3","hand4","hand5"];
   renderStationList("station-list-skulder", STATIONS.filter(s=>skulderIds.includes(s.id)));
   renderStationList("station-list-hand", STATIONS.filter(s=>handIds.includes(s.id)));
+  const kneIds=["kne1","kne2","kne3","kne4"];
+  renderStationList("station-list-kne", STATIONS.filter(s=>kneIds.includes(s.id)));
 }
 
 function renderStationList(containerId, stations){
@@ -992,41 +999,110 @@ function showImageModal(keys){
   keys.forEach(k=>{
     if(IMG[k]){
       const img=document.createElement("img");
-      img.src=IMG[k];
-      img.style.cssText="max-width:100%;border-radius:8px;background:#fff";
-      inner.appendChild(img);
-    }
-  });
-  const closeBtn=document.createElement("button");
-  closeBtn.textContent="✕ Lukk";
-  closeBtn.style.cssText="margin-top:8px;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:var(--sans)";
-  closeBtn.onclick=()=>modal.remove();
-  inner.appendChild(closeBtn);
-  modal.appendChild(inner);
-  document.body.appendChild(modal);
-}
-function showTextModal(title,items){
-  const existing=document.getElementById("img-modal");
-  if(existing)existing.remove();
-  const modal=document.createElement("div");
-  modal.id="img-modal";
-  modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
-  modal.onclick=e=>{if(e.target===modal)modal.remove();};
-  const card=document.createElement("div");
-  card.style.cssText="background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:440px;width:100%";
-  card.innerHTML=`
-    <div style="font-family:var(--mono);color:var(--accent);font-size:11px;letter-spacing:.1em;margin-bottom:12px">${title.toUpperCase()}</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      ${items.map(i=>`<div style="font-size:14px;line-height:1.5;padding:8px 12px;background:var(--hl);border-radius:6px;border-left:3px solid var(--accent)">${i}</div>`).join("")}
-    </div>
-    <button onclick="document.getElementById('img-modal').remove()" style="margin-top:16px;width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:var(--sans);font-weight:600">Lukk</button>
-  `;
-  modal.appendChild(card);
-  document.body.appendChild(modal);
-}
-
-renderMenu();
-go("menu");
-</script>
-</body>
-</html>
+      img.src=IMG[k
+  {
+    id:"kne1",
+    stationName:"Kne 1 – ACL-ruptur",
+    scenario:"Du er kirurgisk turnuslege. En 33 år gammel mann kommer til kontroll etter kneskade under bedriftsfotball for en uke siden. Han ble taklet og fikk en kraftig vridning i kneet. Klarte ikke å belaste i etterkant. Røntgen var negativ. Ved undersøkelse: ømt i leddspalten og tydelig utslag ved Lachmanns prøve.",
+    patientInfo:{name:"Erik Hansen",age:"33",gender:"mann",complaint:"kneskade etter fotballtraume, hevelse og smerter"},
+    patientContext:"Du har en ACL-ruptur i høyre kne etter kraftig vridning under fotball for en uke siden. Kneet er hovent (hydrops). Det er ømhet i leddspalten. Lachmann-testen er positiv – kneet er ustabilt fremover. Du klarer ikke å belaste fullt. Du er spent på hva som feiler deg.",
+    tasks:["1. Vis og beskriv hvordan du vil undersøke pasientens kne","2. Tentativ diagnose basert på funn?","3. Ønsker du videre utredning?","4. Behandling?"],
+    timeMinutes:7,
+    scoringCriteria:[
+      {id:1,category:"Nevrologi",description:"Distal nevrovaskulær status (NVS)",maxPoints:2,keywords:["nvs","puls","sensibilitet","motorikk","kapillær","distal","nevrovaskulær"]},
+      {id:2,category:"Inspeksjon",description:"Inspeksjon",maxPoints:1,keywords:["inspeksjon","se på","se etter","inspisere","hevelse","asymmetri"]},
+      {id:3,category:"Bevegelighet",description:"Aktiv bevegelighet",maxPoints:1,keywords:["aktiv","beveg","fleksjon","ekstensjon","løfte benet"]},
+      {id:4,category:"Bevegelighet",description:"Passiv bevegelighet",maxPoints:1,keywords:["passiv","jeg beveger","fører","passivt"]},
+      {id:5,category:"Palpasjon",description:"Palpasjon av benete strukturer og fossa poplitea",maxPoints:1,keywords:["palper","benete","fossa poplitea","patellar","tibiatuberositet"]},
+      {id:6,category:"Palpasjon",description:"Palpasjon av leddspalte",maxPoints:1,keywords:["leddspalte","spalte","medialt","lateralt","palper spalte"]},
+      {id:7,category:"Spesifikke tester",description:"Test av fremre og bakre korsbånd (Lachmann/skuffe)",maxPoints:1,keywords:["lachmann","korsbånd","skuffe","acl","pcl","fremre","bakre"]},
+      {id:8,category:"Spesifikke tester",description:"Test av mediale og laterale leddbånd (MCL/LCL)",maxPoints:1,keywords:["mcl","lcl","medialt leddbånd","lateralt leddbånd","sidestabilitet","kollateral"]},
+      {id:9,category:"Spesifikke tester",description:"Test av mediale og laterale menisk",maxPoints:1,keywords:["menisk","mcmurray","apley","disco","menisktest"]},
+      {id:10,category:"Spesifikke tester",description:"Stabilitet patella",maxPoints:1,keywords:["patella","patellastabilitet","kneeskål","apprehension patella"]},
+    ],
+    totalMaxPoints:11,passingScore:7,
+    sensorQuestions:[
+      {id:"diag",question:"Basert på dine funn – hva er din tentative diagnose og hva er det kliniske tegnet som peker mot denne?",scoringCriteriaIds:[20],points:2},
+      {id:"utred",question:"Ønsker du å utrede pasienten videre? I så fall hvordan?",scoringCriteriaIds:[21],points:1},
+      {id:"beh",question:"Hvordan vil du behandle denne diagnosen?",scoringCriteriaIds:[22],points:1},
+    ],
+    sensorCriteria:[
+      {id:20,category:"Sensor",description:"ACL-ruptur – positiv Lachmann som klinisk tegn",maxPoints:2},
+      {id:21,category:"Sensor",description:"MR kne for videre utredning",maxPoints:1},
+      {id:22,category:"Sensor",description:"Operasjonsvurdering etter opptrening",maxPoints:1},
+    ],
+  },
+  {
+    id:"kne2",
+    stationName:"Kne 2 – Kneundersøkelse (menisk?)",
+    scenario:"Du er fastlege. En 23 år gammel fotballspiller kommer til deg etter å ha fått en vridning i venstre kne ved en takling for 2 måneder siden. Kneet er tidvis hovent og smertefullt på innsiden. Gjennomfør en klinisk undersøkelse.",
+    patientInfo:{name:"Jonas Berg",age:"23",gender:"mann",complaint:"vridning i venstre kne, tidvis hoven og smertefull på innsiden"},
+    patientContext:"Du har en medial meniskskade i venstre kne etter takling for 2 måneder siden. Kneet er tidvis hovent, særlig etter aktivitet. Det er ømhet i den mediale leddspalten. McMurray og Apleys test er positive medialt. Lachmann er negativ. Du vil gjerne fortsette å spille fotball.",
+    tasks:["Gjennomfør en klinisk undersøkelse mht. denne presentasjonen"],
+    timeMinutes:7,
+    scoringCriteria:[
+      {id:1,category:"Kommunikasjon",description:"Hilser på pasienten",maxPoints:1,keywords:["hei","god dag","mitt navn","jeg heter"]},
+      {id:2,category:"Inspeksjon",description:"Inspeksjon (krever adekvat avkledning)",maxPoints:1,keywords:["inspeksjon","kle av","shorts","se på","inspisere","avkledning"]},
+      {id:3,category:"Funksjon",description:"Funksjonelle prøver (gange og huksittende)",maxPoints:1,keywords:["gange","huksittende","gå","knebøy","funksjon","duck walk"]},
+      {id:4,category:"Bevegelighet",description:"Aktiv bevegelighet",maxPoints:1,keywords:["aktiv","beveg","fleksjon","ekstensjon"]},
+      {id:5,category:"Bevegelighet",description:"Passiv bevegelighet",maxPoints:1,keywords:["passiv","jeg beveger","fører","passivt"]},
+      {id:6,category:"Kraft",description:"Krafttesting kne (fleksjon + ekstensjon)",maxPoints:1,keywords:["kraft","styrke","motstand","fleksjon mot","ekstensjon mot","isometrisk"]},
+      {id:7,category:"Spesifikke tester",description:"Sidestabilitet bilateralt (MCL/LCL)",maxPoints:1,keywords:["sidestabilitet","mcl","lcl","medialt","lateralt","kollateral"]},
+      {id:8,category:"Spesifikke tester",description:"Menisktest (McMurray, Apley eller disco)",maxPoints:1,keywords:["mcmurray","apley","disco","menisk","menisktest"]},
+      {id:9,category:"Spesifikke tester",description:"Palpasjon i leddspalten",maxPoints:1,keywords:["leddspalte","palper spalte","ømhet spalte","medialt","lateralt"]},
+      {id:10,category:"Spesifikke tester",description:"Lachmann + bakre skuffetest",maxPoints:1,keywords:["lachmann","skuffe","korsbånd","acl","pcl"]},
+      {id:11,category:"Palpasjon",description:"Palpasjon av øvrige relevante strukturer",maxPoints:1,keywords:["palper","patella","tibiatuberositet","fossa poplitea","ligament"]},
+      {id:12,category:"Struktur",description:"Hensiktsmessig struktur på undersøkelsen",maxPoints:1,keywords:["systematisk","struktur","metodisk","orden"]},
+    ],
+    totalMaxPoints:12,passingScore:8,
+    sensorQuestions:[],
+    sensorCriteria:[],
+  },
+  {
+    id:"kne3",
+    stationName:"Kne 3 – Septisk artritt + leddpunksjon",
+    scenario:"En gutt på 16 år kommer til akuttmottaket med tiltagende smerter i høyre kne siden i går. Kneet er hovent, varmt og rødt. Mulig feber, føler seg uggen. Fast seksualpartner, ikke brukt IV-droger. Du er turnuslege og må gjøre en leddpunksjon.",
+    patientInfo:{name:"Tobias Lie",age:"16",gender:"mann",complaint:"hovent, varmt og rødt kne siden i går, mulig feber"},
+    patientContext:"Du har septisk artritt i høyre kne. Kneet er veldig hovent, varmt og rødt. Det gjør vondt å bevege det. Du er febril og føler deg dårlig. Du er litt redd for prosedyren men samarbeider. Aspiratet er blakket/grumsete.",
+    tasks:["Still en tentativ diagnose","Beskriv og gjennomfør leddpunksjonen"],
+    timeMinutes:7,
+    scoringCriteria:[
+      {id:1,category:"Diagnose",description:"Tentativ diagnose: septisk artritt",maxPoints:1,keywords:["septisk","artritt","infeksjon","bakteriell","septisk artritt"]},
+      {id:2,category:"Forberedelse",description:"Sterilitet (hette, munnbind, sterile hansker)",maxPoints:1,keywords:["sterilt","hansker","hette","munnbind","sterilitet","aseptisk"]},
+      {id:3,category:"Forberedelse",description:"Vasker feltet (jod / klorheksidin)",maxPoints:1,keywords:["jod","klorheksidin","vaske","desinfisere","rense","sprit"]},
+      {id:4,category:"Forberedelse",description:"Lokalbedøvelse",maxPoints:1,keywords:["lokalbedøvelse","bedøvelse","lidokain","xylocain","lokalan"]},
+      {id:5,category:"Prosedyre",description:"Innstikk – krysspunktet lateralt og superiort for patella",maxPoints:2,keywords:["innstikk","lateralt","superiort","patella","krysspunkt","punksjon"]},
+      {id:6,category:"Aspirat",description:"Klar strågul = normalt",maxPoints:1,keywords:["klar","strågul","normal","normalt aspirat"]},
+      {id:7,category:"Aspirat",description:"Fettperler = intraartikulær skade/brudd",maxPoints:1,keywords:["fettperler","fett","lipohemartros","brudd","intraartikulær"]},
+      {id:8,category:"Aspirat",description:"Blod = intraartikulær skade",maxPoints:1,keywords:["blod","hemartros","blodig","rød"]},
+      {id:9,category:"Aspirat",description:"Blakket = infeksjon",maxPoints:1,keywords:["blakket","grumset","uklar","infeksjon","puss"]},
+      {id:10,category:"Aspirat",description:"Sender til mikroskopi",maxPoints:1,keywords:["mikroskopi","dyrkning","kultur","laboratorium","analyse","sender"]},
+    ],
+    totalMaxPoints:11,passingScore:7,
+    sensorQuestions:[],
+    sensorCriteria:[],
+  },
+  {
+    id:"kne4",
+    stationName:"Kne 4 – Låst kne (menisk?)",
+    scenario:"Ole, 25 år, spiller fotball på fritiden. For fire dager siden ble han taklet og fikk akutte smerter i høyre kne. Han klarer ikke å rette ut kneet siden kampen, har fortsatt sterke smerter og syns kneet er hovent. Du er legevaktslege.",
+    patientInfo:{name:"Ole Dahl",age:"25",gender:"mann",complaint:"klarer ikke rette ut høyre kne etter takling, hevelse og smerter"},
+    patientContext:"Du har sannsynligvis en meniskskade med låsning i høyre kne etter fotballtakling for fire dager siden. Du klarer ikke å ekstendere kneet fullt ut – det er som om noe sitter fast. Kneet er hovent. Det er ømhet i leddspalten. Du har sterke smerter og er bekymret for om du kan spille fotball igjen.",
+    tasks:["Gjennomfør en målrettet undersøkelse","Fortell Ole om tiltak/behandling/videre utredning"],
+    timeMinutes:7,
+    scoringCriteria:[
+      {id:1,category:"Inspeksjon",description:"Inspeksjon",maxPoints:1,keywords:["inspeksjon","se på","inspisere","hevelse","asymmetri"]},
+      {id:2,category:"Palpasjon",description:"Palpasjon: hydrops, leddspalte, benete strukturer, patellastabilitet",maxPoints:2,keywords:["palper","hydrops","leddspalte","patella","benete","palpasjon"]},
+      {id:3,category:"Bevegelighet",description:"Aktiv bevegelighet",maxPoints:1,keywords:["aktiv","beveg","fleksjon","ekstensjon"]},
+      {id:4,category:"Bevegelighet",description:"Passiv bevegelighet",maxPoints:1,keywords:["passiv","jeg beveger","fører","passivt"]},
+      {id:5,category:"Spesifikke tester",description:"Korsbåndstest (skuffe + Lachmann)",maxPoints:1,keywords:["lachmann","skuffe","korsbånd","acl","pcl"]},
+      {id:6,category:"Spesifikke tester",description:"Menisktest (Apley, McMurray eller disco)",maxPoints:1,keywords:["mcmurray","apley","disco","menisk","menisktest"]},
+      {id:7,category:"Spesifikke tester",description:"Ligamenttest (MCL/LCL)",maxPoints:1,keywords:["mcl","lcl","ligament","sidestabilitet","kollateral"]},
+      {id:8,category:"Nevrologi",description:"Distal nevrovaskulær status",maxPoints:1,keywords:["nvs","puls","sensibilitet","motorikk","kapillær","distal"]},
+      {id:9,category:"Tiltak",description:"Forslag til tiltak/utredning (smertestillende, Rtg, MR, ortoped)",maxPoints:2,keywords:["smertestillende","rtg","røntgen","mr","ortoped","nsaid","oppfølging"]},
+    ],
+    totalMaxPoints:11,passingScore:7,
+    sensorQuestions:[],
+    sensorCriteria:[],
+  },
+];
