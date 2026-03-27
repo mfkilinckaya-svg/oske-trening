@@ -535,11 +535,17 @@ function renderScoring(){
       const icon=got>=max2?'✅':got>0?'⚡':'❌';
       const imgKeys=getImagesForCriterion(item.description);
       const textItems=getTextCardForCriterion(item.description);
-      const imgBtn=imgKeys&&imgKeys.length>0
-        ?`<button onclick="showImageModal(${JSON.stringify(imgKeys)})" style="background:rgba(45,125,210,.15);color:var(--accent);border:1px solid rgba(45,125,210,.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--mono)">📖 Se teknikk</button>`
-        :textItems
-        ?`<button onclick="showTextModal('${item.description}',${JSON.stringify(textItems)})" style="background:rgba(15,168,126,.15);color:var(--success);border:1px solid rgba(15,168,126,.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--mono)">📋 Huskeliste</button>`
-        :''
+      // Store data in a global registry, use simple id in onclick
+      const btnId='btn-'+item.id+'-'+Date.now();
+      window._btnData=window._btnData||{};
+      let imgBtn='';
+      if(imgKeys&&imgKeys.length>0){
+        window._btnData[btnId]={type:'img',keys:imgKeys};
+        imgBtn=`<button onclick="handleBtnClick('${btnId}')" style="background:rgba(45,125,210,.15);color:var(--accent);border:1px solid rgba(45,125,210,.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--mono)">📖 Se teknikk</button>`;
+      } else if(textItems){
+        window._btnData[btnId]={type:'text',title:item.description,items:textItems};
+        imgBtn=`<button onclick="handleBtnClick('${btnId}')" style="background:rgba(15,168,126,.15);color:var(--success);border:1px solid rgba(15,168,126,.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--mono)">📋 Huskeliste</button>`;
+      }
       html+=`<div style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px">
           <span style="font-size:13px;line-height:1.4;flex:1">${icon} ${esc(item.description)}</span>
@@ -734,6 +740,13 @@ function getTextCardForCriterion(description) {
     }
   }
   return null;
+}
+
+function handleBtnClick(id) {
+  const data = window._btnData && window._btnData[id];
+  if (!data) return;
+  if (data.type === 'img') showImageModal(data.keys);
+  else if (data.type === 'text') showTextModal(data.title, data.items);
 }
 
 function showTextModal(title, items) {
