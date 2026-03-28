@@ -528,29 +528,24 @@ function go(id){
 function renderMenu(){
   const groups={skulder:["skulder1","skulder2","skulder3"],hand:["hand1","hand2","hand3","hand4","hand5"],kne:["kne1","kne2","kne3","kne4"]};
   for(const[g,ids]of Object.entries(groups)){
-    const el=document.getElementById("sl-"+g);
-    if(!el)continue;
-    el.innerHTML=STATIONS.filter(s=>ids.includes(s.id)).map(s=>{
-      const totalMax=s.totalMaxPoints+(s.sensorCriteria||[]).reduce((a,c)=>a+c.maxPoints,0);
-      const hasSensor=s.sensorQuestions&&s.sensorQuestions.length>0;
+    const container=document.getElementById("sl-"+g);
+    if(!container)continue;
+    container.innerHTML="";
+    STATIONS.filter(s=>ids.includes(s.id)).forEach(function(s){
+      const totalMax=s.totalMaxPoints+(s.sensorCriteria||[]).reduce(function(a,c){return a+c.maxPoints;},0);
+      const hasSensor=!!(s.sensorQuestions&&s.sensorQuestions.length>0);
       const hasXray=!!s.xrayImage;
-      return `<div data-id="${s.id}" onclick="selectStation(this.dataset.id)"
-        style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .15s"
-        onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div>
-          <div style="font-weight:600;font-size:15px">${s.stationName}</div>
-          <div style="color:var(--muted);font-family:var(--mono);font-size:12px;margin-top:4px">${s.patientInfo.age} ar - ${s.patientInfo.gender} - ${s.patientInfo.complaint}</div>
-          <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
-            ${hasSensor?'<span style="background:rgba(232,160,32,.12);color:var(--warning);border:1px solid rgba(232,160,32,.3);border-radius:3px;padding:1px 7px;font-size:10px;font-family:var(--mono);font-weight:700">SENSOR</span>':''}
-            ${hasXray?'<span style="background:rgba(45,125,210,.12);color:var(--accent);border:1px solid rgba(45,125,210,.3);border-radius:3px;padding:1px 7px;font-size:10px;font-family:var(--mono);font-weight:700">RONTGEN</span>':''}
-          </div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="color:var(--success);font-family:var(--mono);font-size:14px;font-weight:700">${totalMax}p</div>
-          <div style="color:var(--dim);font-family:var(--mono);font-size:10px">${s.timeMinutes} min</div>
-        </div>
-      </div>`;
-    }).join("");
+      const card=document.createElement("div");
+      card.style.cssText="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .15s";
+      card.onmouseover=function(){this.style.borderColor="var(--accent)";};
+      card.onmouseout=function(){this.style.borderColor="var(--border)";};
+      card.onclick=(function(sid){return function(){selectStation(sid);};})(s.id);
+      let badges="";
+      if(hasSensor)badges+='<span style="background:rgba(232,160,32,.12);color:var(--warning);border:1px solid rgba(232,160,32,.3);border-radius:3px;padding:1px 7px;font-size:10px;font-family:var(--mono);font-weight:700">SENSOR</span>';
+      if(hasXray)badges+='<span style="background:rgba(45,125,210,.12);color:var(--accent);border:1px solid rgba(45,125,210,.3);border-radius:3px;padding:1px 7px;font-size:10px;font-family:var(--mono);font-weight:700">RONTGEN</span>';
+      card.innerHTML='<div><div style="font-weight:600;font-size:15px">'+s.stationName+'</div><div style="color:var(--muted);font-family:var(--mono);font-size:12px;margin-top:4px">'+s.patientInfo.age+' ar &bull; '+s.patientInfo.gender+' &bull; '+s.patientInfo.complaint+'</div><div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">'+badges+'</div></div><div style="text-align:right;flex-shrink:0"><div style="color:var(--success);font-family:var(--mono);font-size:14px;font-weight:700">'+totalMax+'p</div><div style="color:var(--dim);font-family:var(--mono);font-size:10px">'+s.timeMinutes+' min</div></div>';
+      container.appendChild(card);
+    });
   }
 }
 
