@@ -534,7 +534,7 @@ function renderMenu(){
       const totalMax=s.totalMaxPoints+(s.sensorCriteria||[]).reduce((a,c)=>a+c.maxPoints,0);
       const hasSensor=s.sensorQuestions&&s.sensorQuestions.length>0;
       const hasXray=!!s.xrayImage;
-      return `<div onclick="selectStation('${s.id}')"
+      return `<div data-id="${s.id}" onclick="selectStation(this.dataset.id)"
         style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .15s"
         onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
         <div>
@@ -585,7 +585,10 @@ function startPractice(){
   updateLiveScore();
   go("practice");
   if(station.sensorOnly){
-    document.getElementById("chat-inner").innerHTML=`<div style="text-align:center;padding:32px 20px">${station.xrayImage&&IMG[station.xrayImage]?`<img src="${IMG[station.xrayImage]}" style="max-width:100%;border-radius:8px;margin-bottom:16px;cursor:pointer" onclick="showImageModal(['${station.xrayImage}'])"><div style="color:var(--muted);font-family:var(--mono);font-size:12px">Klikk for a forstore</div>`""}<div style="margin-top:20px;color:var(--text);font-size:14px">Sensoren vil stille deg sporsmal.</div></div>`;
+    const xrayHtml=station.xrayImage&&IMG[station.xrayImage]
+      ?'<img src="'+IMG[station.xrayImage]+'" style="max-width:100%;border-radius:8px;margin-bottom:16px;cursor:pointer" onclick="showImageModal([\''+station.xrayImage+'\'])"><div style="color:var(--muted);font-family:var(--mono);font-size:12px">Klikk for a forstore</div>'
+      :"";
+    document.getElementById("chat-inner").innerHTML='<div style="text-align:center;padding:32px 20px">'+xrayHtml+'<div style="margin-top:20px;color:var(--text);font-size:14px">Sensoren vil stille deg sporsmal.</div></div>';
     stopTimer();setTimeout(()=>startSensor(),500);
   }else{
     startTimer();
@@ -756,10 +759,10 @@ function renderScoring(){
       let btnHtml="";
       if(imgKeys&&imgKeys.length>0){
         window._btnData[btnId]={type:"img",keys:imgKeys};
-        btnHtml=`<button onclick="handleBtnClick('${btnId}')" style="background:rgba(45,125,210,.15);color:var(--accent);border:1px solid rgba(45,125,210,.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--mono)">Se teknikk</button>`;
+        btnHtml='<button data-btnid="'+btnId+'" onclick="handleBtnClick(this.dataset.btnid)" style="background:rgba(45,125,210,.15);color:var(--accent);border:1px solid rgba(45,125,210,.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--mono)">Se teknikk</button>';
       }else if(textItems){
         window._btnData[btnId]={type:"text",title:item.description,items:textItems};
-        btnHtml=`<button onclick="handleBtnClick('${btnId}')" style="background:rgba(15,168,126,.15);color:var(--success);border:1px solid rgba(15,168,126,.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--mono)">Huskeliste</button>`;
+        btnHtml='<button data-btnid="'+btnId+'" onclick="handleBtnClick(this.dataset.btnid)" style="background:rgba(15,168,126,.15);color:var(--success);border:1px solid rgba(15,168,126,.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap;font-family:var(--mono)">Huskeliste</button>';
       }
       html+=`<div style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px">
