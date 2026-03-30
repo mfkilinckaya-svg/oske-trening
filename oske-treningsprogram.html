@@ -554,7 +554,7 @@ function selectStation(id){
 }
 
 function renderBriefing(){
-  const s=station;
+  const st = STATIONS.find(s => s && s.id === id);
   document.getElementById("b-title").textContent=s.stationName;
   document.getElementById("b-scenario").textContent=s.scenario;
   document.getElementById("b-tasks").innerHTML=s.tasks.map(t=>`<div>${t}</div>`).join("");
