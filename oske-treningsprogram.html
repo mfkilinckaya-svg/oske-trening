@@ -548,13 +548,13 @@ function renderMenu(){
 }
 
 function selectStation(id){
-  station=STATIONS.find(s=>s.id===id);
+  station=STATIONS.find(s=>s&&s.id===id);
   renderBriefing();
   go("briefing");
 }
 
 function renderBriefing(){
-  const st = STATIONS.find(s => s && s.id === id);
+  const s=station;
   document.getElementById("b-title").textContent=s.stationName;
   document.getElementById("b-scenario").textContent=s.scenario;
   document.getElementById("b-tasks").innerHTML=s.tasks.map(t=>`<div>${t}</div>`).join("");
