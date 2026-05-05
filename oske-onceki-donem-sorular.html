@@ -678,6 +678,13 @@
     margin-bottom: 16px;
   }
 
+  .sim-btn-fasit {
+    background: transparent;
+    border-color: var(--accent1);
+    color: var(--accent1);
+  }
+  .sim-btn-fasit:hover { background: var(--accent1); color: var(--bg); }
+
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg2); }
@@ -1383,13 +1390,14 @@ STATIONS.forEach((s, idx) => {
         <div class="sim-title">🎯 Stasjonssimulering</div>
         <div class="sim-timer" id="sim-timer-${s.id}">07:00</div>
       </div>
-      <div class="sim-scenario-box">${s.simulation.scenario}</div>
-      <div class="sim-steps">${stepsHTML}</div>
       <div class="sim-controls">
         <button class="sim-btn sim-btn-start" id="sim-start-${s.id}" onclick="startSim(${s.id})">▶ Start stasjon</button>
         <button class="sim-btn sim-btn-stop" id="sim-stop-${s.id}" onclick="stopSim(${s.id})" disabled>⏹ Stopp opptak</button>
         <button class="sim-btn sim-btn-reset" id="sim-reset-${s.id}" onclick="resetSim(${s.id})">↺ Tilbakestill</button>
+        <button class="sim-btn sim-btn-fasit" onclick="toggleFasit(${s.id})">📋 Fasit</button>
       </div>
+      <div class="sim-scenario-box">${s.simulation.scenario}</div>
+      <div class="sim-steps">${stepsHTML}</div>
       <div class="sim-mic-indicator">
         <div class="sim-mic-dot" id="sim-dot-${s.id}"></div>
         <span id="sim-mic-label-${s.id}">Trykk Start for å begynne</span>
@@ -1646,6 +1654,30 @@ function selectStation(idx) {
   document.querySelector(`.station[data-idx="${idx}"]`).classList.add('active');
   window.scrollTo(0, 0);
 }
+
+function toggleFasit(sid) {
+  const station = STATIONS.find(s => s.id === sid);
+  if (!station || !station.simulation) return;
+  const steps = station.simulation.steps;
+  const allRevealed = steps.every((_, i) => {
+    const el = document.getElementById(`sim-step-${sid}-${i}`);
+    return el && el.classList.contains('revealed');
+  });
+  steps.forEach((_, i) => {
+    const el = document.getElementById(`sim-step-${sid}-${i}`);
+    if (el) {
+      if (allRevealed) {
+        el.classList.remove('revealed');
+        if (simState[sid]) simState[sid].revealed[i] = false;
+      } else {
+        el.classList.add('revealed');
+      }
+    }
+  });
+  const btn = document.querySelector(`#sim-start-${sid}`).parentElement.querySelector('.sim-btn-fasit');
+  btn.textContent = allRevealed ? '📋 Fasit' : '🙈 Skjul fasit';
+}
+
 
 function toggleQA(el) {
   const answer = el.nextElementSibling;
