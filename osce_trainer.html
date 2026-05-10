@@ -951,19 +951,19 @@ function normalize(s) {
 }
 
 function similarity(a, b) {
+  // a = target phrase, b = transcript
   a = normalize(a); b = normalize(b);
   const aWords = a.split(/\s+/).filter(w => w.length > 1);
   const bWords = b.split(/\s+/).filter(w => w.length > 1);
   if (aWords.length === 0) return 0;
 
-  // Check if transcript contains target (substring match)
+  // Exact substring match — transcript contains the full target
   if (b.includes(a)) return 1.0;
-  if (a.includes(b)) return 0.9;
 
-  // Word overlap — each target word found anywhere in transcript
+  // Word overlap — but ONLY count words that appear in transcript as whole words
   let matches = 0;
   aWords.forEach(w => {
-    if (bWords.some(bw => bw.includes(w) || w.includes(bw) || levenshtein(w, bw) <= 1)) matches++;
+    if (bWords.some(bw => bw === w || levenshtein(w, bw) <= 1)) matches++;
   });
   return matches / aWords.length;
 }
@@ -980,9 +980,9 @@ function levenshtein(a, b) {
 
 function checkMatch(transcript, targetPhrase) {
   const score = similarity(targetPhrase, transcript);
-  // Lower threshold for short phrases (≤4 words)
+  // Require high similarity — at least 70% of target words must match
   const words = normalize(targetPhrase).split(/\s+/).filter(w => w.length > 1);
-  const threshold = words.length <= 3 ? 0.45 : 0.55;
+  const threshold = words.length <= 3 ? 0.75 : 0.70;
   return { score, matched: score >= threshold };
 }
 
