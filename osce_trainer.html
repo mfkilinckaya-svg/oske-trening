@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSCE Trener — Ortopedi</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --border: #2a3a55;
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --gold: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── HEADER ── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,14,26,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.logo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent2);
+  font-family: var(--mono);
+  letter-spacing: 1px;
+}
+
+.timer-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#timer {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 2px;
+  min-width: 70px;
+  text-align: center;
+}
+#timer.urgent { color: var(--red); animation: pulse 1s infinite; }
+
+@keyframes pulse {
+  0%,100% { opacity: 1; } 50% { opacity: 0.5; }
+}
+
+.timer-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.timer-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.progress-bar {
+  width: 120px;
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* ── STATION SELECTOR ── */
+.station-bar {
+  display: flex;
+  gap: 6px;
+  padding: 12px 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: relative;
+  z-index: 1;
+  scrollbar-width: none;
+}
+.station-bar::-webkit-scrollbar { display: none; }
+
+.st-btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.st-btn:hover { border-color: var(--accent); color: var(--accent2); }
+.st-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+.st-btn .st-check {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  font-size: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.st-btn.done .st-check { background: var(--green); }
+
+/* ── MAIN LAYOUT ── */
+main {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 0;
+  min-height: calc(100vh - 120px);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── STEP LIST ── */
+.steps-panel {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.station-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+.station-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.step-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 20px rgba(59,130,246,0.15);
+}
+.step-card.done {
+  border-color: var(--green);
+  opacity: 0.75;
+}
+.step-card.done .step-body { display: none; }
+
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--muted);
+  transition: all 0.3s;
+}
+.step-card.active .step-num { background: var(--accent); border-color: var(--accent); color: white; }
+.step-card.done .step-num { background: var(--green); border-color: var(--green); color: white; }
+
+.step-title-wrap { flex: 1; }
+.step-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.step-card.done .step-title { color: var(--muted); text-decoration: line-through; }
+.step-time {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.step-check {
+  font-size: 18px;
+  transition: all 0.3s;
+  opacity: 0;
+}
+.step-card.done .step-check { opacity: 1; }
+
+.step-body {
+  padding: 0 16px 14px 56px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.step-items { display: flex; flex-direction: column; gap: 6px; }
+
+.item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface2);
+  border: 1px solid transparent;
+  transition: all 0.4s;
+  position: relative;
+}
+.item-row.listening { border-color: var(--accent); background: rgba(59,130,246,0.08); }
+.item-row.matched { border-color: var(--green); background: rgba(16,185,129,0.08); }
+.item-row.wrong { border-color: var(--red); background: rgba(239,68,68,0.08); }
+
+/* Hidden state — text blurred until revealed */
+.item-no {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--accent2);
+  line-height: 1.4;
+  transition: all 0.4s;
+}
+.item-tr {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  transition: all 0.4s;
+}
+.item-row.hidden .item-no {
+  filter: blur(5px);
+  color: var(--muted);
+  user-select: none;
+}
+.item-row.hidden .item-tr {
+  filter: blur(4px);
+  user-select: none;
+}
+
+.item-check {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  transition: all 0.3s;
+}
+.item-row.matched .item-check { background: var(--green); border-color: var(--green); color: white; }
+.item-row.wrong .item-check { background: var(--red); border-color: var(--red); color: white; }
+
+.item-text { flex: 1; }
+
+.manual-tick {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: var(--mono);
+}
+.manual-tick:hover { border-color: var(--green); color: var(--green); }
+.manual-tick.fasit-btn { border-color: var(--border); }
+.manual-tick.fasit-btn:hover { border-color: var(--red); color: var(--red); }
+.manual-tick.undo-btn { border-color: var(--red); color: var(--red); }
+
+.btn-group { display: flex; gap: 4px; flex-direction: column; align-items: flex-end; }
+
+/* Nav area reset button */
+.reset-station-btn {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--red);
+  background: rgba(239,68,68,0.08);
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.reset-station-btn:hover { background: rgba(239,68,68,0.2); }
+
+/* ── MIC PANEL ── */
+.mic-panel {
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 57px;
+  height: calc(100vh - 57px);
+  overflow-y: auto;
+}
+
+.mic-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mic-btn-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#micBtn {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  transition: all 0.3s;
+  position: relative;
+}
+#micBtn:hover { border-color: var(--accent); transform: scale(1.05); }
+#micBtn.listening {
+  border-color: var(--red);
+  background: rgba(239,68,68,0.1);
+  animation: mic-pulse 1.5s infinite;
+}
+@keyframes mic-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+  50% { box-shadow: 0 0 0 16px rgba(239,68,68,0); }
+}
+#micBtn.listening::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(239,68,68,0.4);
+  animation: ring 1.5s infinite;
+}
+@keyframes ring {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.mic-status {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: center;
+  color: var(--muted);
+}
+.mic-status.active { color: var(--red); }
+
+/* Transcript */
+.transcript-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 60px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent2);
+  line-height: 1.5;
+}
+.transcript-placeholder { color: var(--muted); font-style: italic; }
+
+/* Match feedback */
+.match-feedback {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 11px;
+  min-height: 44px;
+}
+.match-score { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+.match-score.good { color: var(--green); }
+.match-score.bad { color: var(--red); }
+
+/* Current step highlight */
+.current-step-box {
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.3);
+  border-radius: 8px;
+  padding: 10px;
+}
+.csb-label { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.csb-text { font-size: 12px; color: var(--accent2); line-height: 1.5; font-family: var(--mono); }
+
+/* Nav buttons */
+.nav-btns { display: flex; gap: 8px; }
+.nav-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent2); }
+.nav-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.nav-btn.primary:hover { background: var(--accent2); }
+
+/* Complete screen */
+.complete-banner {
+  display: none;
+  background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.15));
+  border: 1px solid var(--green);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.complete-banner.show { display: block; }
+.complete-banner h2 { font-size: 18px; color: var(--green); margin-bottom: 6px; }
+.complete-banner p { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+@media (max-width: 700px) {
+  main { grid-template-columns: 1fr; }
+  .mic-panel { position: fixed; bottom: 0; left: 0; right: 0; height: auto; border-left: none; border-top: 1px solid var(--border); flex-direction: row; flex-wrap: wrap; z-index: 50; }
+  .mic-panel > * { flex: 1; min-width: 140px; }
+  .steps-panel { padding-bottom: 200px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⬡ OSCE TRENER</div>
+  <div class="timer-wrap">
+    <button class="timer-btn" onclick="resetTimer()">↺</button>
+    <div id="timer">7:00</div>
+    <button class="timer-btn" onclick="toggleTimer()">▶</button>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <span id="progressText">0 / 0</span>
+  </div>
+</header>
+
+<div class="station-bar" id="stationBar"></div>
+
+<main>
+  <div class="steps-panel" id="stepsPanel">
+    <div class="station-title" id="stTitle"></div>
+    <div class="station-sub" id="stSub"></div>
+    <div id="stepsList"></div>
+    <div class="complete-banner" id="completeBanner">
+      <h2>✅ İstasyon Tamamlandı!</h2>
+      <p id="completionTime"></p>
+    </div>
+  </div>
+
+  <aside class="mic-panel">
+    <div class="mic-title">🎙 Konuşma Tanıma</div>
+
+    <div class="current-step-box">
+      <div class="csb-label">Mevcut adım</div>
+      <div class="csb-text" id="currentStepText">—</div>
+    </div>
+
+    <div class="mic-btn-wrap">
+      <button id="micBtn" onclick="toggleMic()">🎤</button>
+      <div class="mic-status" id="micStatus">Mikrofon kapalı</div>
+    </div>
+
+    <div>
+      <div class="mic-title" style="margin-bottom:6px">Duyulan</div>
+      <div class="transcript-box" id="transcriptBox">
+        <span class="transcript-placeholder">Konuşunca burada görünür...</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="mic-title" style="margin-bottom:6px">Eşleşme</div>
+      <div class="match-feedback" id="matchFeedback">
+        <span style="color:var(--muted); font-size:11px; font-family:var(--mono)">Bekleniyor...</span>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="nav-btn" onclick="prevItem()">← Geri</button>
+      <button class="nav-btn primary" onclick="nextItem()">İleri →</button>
+    </div>
+    <button class="reset-station-btn" onclick="resetStation()">↺ İstasyonu Sıfırla</button>
+  </aside>
+</main>
+
+<script>
+// ══════════════════════════════════════════════
+// VERİ — 6 İSTASYON
+// ══════════════════════════════════════════════
+const stations = [
+  {
+    id: 'hofte', emoji: '🦴', name: 'Hofte', sub: 'Kalça Muayenesi — 7 dk',
+    steps: [
+      { title: 'İnspeksiyon', time: '45 sn', items: [
+        { no: '«Kan du ta av deg?»', tr: 'Soyunabilir misiniz?' },
+        { no: '«Jeg ser på akse og stilling»', tr: 'Eksen ve duruşa bakıyorum' },
+        { no: '«Jeg undersøker muskulaturen»', tr: 'Kas yapısını inceliyorum' },
+        { no: '«Jeg ser etter hevelse»', tr: 'Şişlik arıyorum' },
+        { no: '«Jeg ser etter bloduttredelse»', tr: 'Hematom arıyorum' },
+        { no: '«Jeg ser etter sårskader»', tr: 'Yara arıyorum' },
+        { no: '«Jeg ser etter arr»', tr: 'Yara izi arıyorum' },
+        { no: '«Jeg vurderer anteversjonsvinkelen»', tr: 'Anteversiyon açısını değerlendiriyorum' },
+        { no: '«Jeg ser etter beinlengdeforskjell»', tr: 'Bacak boyu farkına bakıyorum' },
+      ]},
+      { title: 'Palpasjon', time: '45 sn', items: [
+        { no: '«Jeg trykker på sacrum»', tr: 'Sakruma basıyorum' },
+        { no: '«Jeg trykker på SI-leddet»', tr: 'SI ekleme basıyorum' },
+        { no: '«Jeg trykker langs crista iliaca»', tr: 'Krista boyunca basıyorum' },
+        { no: '«Jeg trykker på sittebensknuten»', tr: 'İskiyal tüberoziteye basıyorum' },
+        { no: '«Jeg trykker på trochanter major»', tr: 'Trokanter majora basıyorum' },
+      ]},
+      { title: 'Fonksiyonel testler', time: '45 sn', items: [
+        { no: '«Kan du gå på tærne?»', tr: 'Parmak ucunda yürüyebilir misiniz? (S1)' },
+        { no: '«Kan du gå på hælene?»', tr: 'Topuk üstünde yürüyebilir misiniz? (L5)' },
+        { no: '«Kan du gjøre en huk?»', tr: 'Çömelir misiniz? (L3-L4)' },
+        { no: '«Kan du stå på ett bein?»', tr: 'Tek ayakta durabilir misiniz? (L5)' },
+      ]},
+      { title: 'Aktif hareket', time: '50 sn', items: [
+        { no: '«Kan du trekke kneet opp mot brystet?»', tr: 'Fleksjon — Ryggliggende' },
+        { no: '«Kan du føre beinet utover?»', tr: 'Abduksjon — Ryggliggende' },
+        { no: '«Kan du føre beinet innover?»', tr: 'Adduksjon — Ryggliggende' },
+        { no: '«Kan du løfte beinet opp fra benken?»', tr: 'Ekstensjon — Mageliggende' },
+        { no: '«Kan du dreie foten innover?»', tr: 'İnnerrotasjon — Mageliggende' },
+        { no: '«Kan du dreie foten utover?»', tr: 'Utoverrotasjon — Mageliggende' },
+      ]},
+      { title: 'İzometrik + Kas uzunluğu', time: '50 sn', items: [
+        { no: '«Jeg tester iliopsoas»', tr: 'Iliopsoas — fleksiyona direnç' },
+        { no: '«Jeg tester hamstrings»', tr: 'Hamstrings üst + alt' },
+        { no: '«Jeg tester gluteus maximus»', tr: 'Glut. maximus — düz yukarı' },
+        { no: '«Jeg tester gluteus medius»', tr: 'Glut. medius — yana + hafif arkaya' },
+        { no: '«Jeg tester piriformis»', tr: 'Piriformis — yana güç' },
+        { no: '«Thomas test»', tr: 'Thomas testi — kas uzunluğu' },
+      ]},
+      { title: 'Spesiyel testler', time: '60 sn', items: [
+        { no: '«Jeg sjekker ADP og ATP»', tr: 'Akutt hofte — distal status' },
+        { no: '«Thomas test»', tr: 'Thomas testi' },
+        { no: '«FADIR test»', tr: 'FADIR — ön labrum' },
+        { no: '«FABER test»', tr: 'FABER — arka labrum' },
+        { no: '«P4 test»', tr: 'P4 — SI eklem' },
+        { no: '«Stukning»', tr: 'Stukning — femur boynu' },
+      ]},
+      { title: 'Nöroloji + Refleks', time: '45 sn', items: [
+        { no: '«Jeg undersøker L4 sensorikk»', tr: 'L4 — lateral uyluk + medial ayak sırtı' },
+        { no: '«Jeg undersøker L5 sensorikk»', tr: 'L5 — ayak sırtı' },
+        { no: '«Jeg undersøker S1 sensorikk»', tr: 'S1 — lateral ayak sırtı' },
+        { no: '«Jeg tester knefleksrefleksen»', tr: 'Patella refleksi — L3/L4' },
+        { no: '«Jeg tester akillesrefleksen»', tr: 'Aşil refleksi — S1' },
+      ]},
+    ]
+  },
+  {
+    id: 'kne', emoji: '🦵', name: 'Kne', sub: 'Diz Muayenesi — 7 dk',
+    steps: [
+      { title: 'İnspeksiyon', time: '45 sn', items: [
+        { no: '«Kan du ta av deg?»', tr: 'Soyunabilir misiniz?' },
+        { no: '«Jeg ser på akse og stilling»', tr: 'Eksen ve duruşa bakıyorum' },
+        { no: '«Jeg undersøker muskulaturen»', tr: 'Kas yapısını inceliyorum' },
+        { no: '«Jeg ser etter hevelse»', tr: 'Şişlik arıyorum' },
+        { no: '«Jeg ser etter bloduttredelse»', tr: 'Hematom arıyorum' },
+        { no: '«Jeg ser etter sårskader»', tr: 'Yara arıyorum' },
+        { no: '«Jeg ser etter arr»', tr: 'Yara izi arıyorum' },
+        { no: '«Jeg vurderer Q-vinkelen»', tr: 'Q-açısını değerlendiriyorum' },
+      ]},
+      { title: 'Palpasjon', time: '45 sn', items: [
+        { no: '«Jeg trykker på mediale femurkondyl»', tr: 'Medial femur kondili' },
+        { no: '«Jeg trykker på laterale femurkondyl»', tr: 'Lateral femur kondili' },
+        { no: '«Jeg trykker på mediale tibiakondyl»', tr: 'Medial tibia kondili' },
+        { no: '«Jeg trykker på laterale tibiakondyl»', tr: 'Lateral tibia kondili' },
+        { no: '«Jeg trykker på patella»', tr: 'Patella' },
+        { no: '«Jeg trykker på tuberositas tibiae»', tr: 'Tibia tüberozitesi' },
+        { no: '«Jeg trykker på mediale leddspalte»', tr: 'Medial eklem aralığı' },
+        { no: '«Jeg trykker på laterale leddspalte»', tr: 'Lateral eklem aralığı' },
+      ]},
+      { title: 'Fonksiyonel testler', time: '45 sn', items: [
+        { no: '«Kan du gå på tærne?»', tr: 'Parmak ucunda yürüyebilir misiniz? (S1)' },
+        { no: '«Kan du gå på hælene?»', tr: 'Topuk üstünde yürüyebilir misiniz? (L5)' },
+        { no: '«Kan du gjøre en huk?»', tr: 'Çömelir misiniz? (L3-L4)' },
+        { no: '«Kan du stå på ett bein?»', tr: 'Tek ayakta durabilir misiniz? (L5)' },
+      ]},
+      { title: 'Aktif hareket', time: '40 sn', items: [
+        { no: '«Kan du bøye kneet så mye som mulig?»', tr: 'Fleksjon' },
+        { no: '«Kan du strekke kneet helt ut?»', tr: 'Ekstensjon' },
+      ]},
+      { title: 'İzometrik testler', time: '30 sn', items: [
+        { no: '«Jeg tester isometrisk fleksjon»', tr: 'Hamstrings — fleksiyon direnci' },
+        { no: '«Jeg tester isometrisk ekstensjon»', tr: 'Quadriceps — ekstansiyon direnci' },
+      ]},
+      { title: 'Spesiyel testler', time: '70 sn', items: [
+        { no: '«Jeg sjekker ADP og ATP»', tr: 'Akutt kne — distal status' },
+        { no: '«Varus stresstest»', tr: 'Varus stress — LCB' },
+        { no: '«Valgus stresstest»', tr: 'Valgus stress — MCB' },
+        { no: '«Skuffetest»', tr: 'Skuffetest — ACL' },
+        { no: '«Lachmann test»', tr: 'Lachmann — ACL (daha hassas)' },
+        { no: '«McMurray test»', tr: 'McMurray — menisk' },
+        { no: '«Appley test»', tr: 'Appley — menisk' },
+        { no: '«Diptest»', tr: 'Diptest — effüzyon' },
+      ]},
+      { title: 'Nöroloji + Refleks', time: '45 sn', items: [
+        { no: '«Jeg undersøker L4 sensorikk»', tr: 'L4 — lateral uyluk' },
+        { no: '«Jeg undersøker L5 sensorikk»', tr: 'L5 — ayak sırtı' },
+        { no: '«Jeg undersøker S1 sensorikk»', tr: 'S1 — lateral ayak' },
+        { no: '«Jeg tester knefleksrefleksen»', tr: 'Patella refleksi' },
+        { no: '«Jeg tester akillesrefleksen»', tr: 'Aşil refleksi' },
+      ]},
+    ]
+  },
+  {
+    id: 'fot', emoji: '🦶', name: 'Fot', sub: 'Ayak Muayenesi — 7 dk',
+    steps: [
+      { title: 'İnspeksiyon', time: '45 sn', items: [
+        { no: '«Kan du ta av deg?»', tr: 'Soyunabilir misiniz?' },
+        { no: '«Jeg ser på akse og stilling»', tr: 'Eksen ve duruşa bakıyorum' },
+        { no: '«Jeg undersøker muskulaturen»', tr: 'Kas yapısını inceliyorum' },
+        { no: '«Jeg ser etter hevelse»', tr: 'Şişlik arıyorum' },
+        { no: '«Jeg ser etter bloduttredelse»', tr: 'Hematom arıyorum' },
+        { no: '«Jeg ser etter sårskader»', tr: 'Yara arıyorum' },
+        { no: '«Jeg ser etter arr»', tr: 'Yara izi arıyorum' },
+        { no: '«Jeg ser etter flatfot»', tr: 'Düz taban arıyorum' },
+        { no: '«Jeg ser etter hulfot»', tr: 'Yüksek kavs arıyorum' },
+      ]},
+      { title: 'Palpasjon', time: '30 sn', items: [
+        { no: '«Jeg trykker på mediale malleol»', tr: 'Medial malleol' },
+        { no: '«Jeg trykker på laterale malleol»', tr: 'Lateral malleol' },
+        { no: '«Jeg trykker på basis av 5. metatars»', tr: '5. metatars tabanı' },
+        { no: '«Jeg trykker på cuboid»', tr: 'Kuboid' },
+      ]},
+      { title: 'Fonksiyonel testler', time: '45 sn', items: [
+        { no: '«Kan du gå på tærne?»', tr: 'Parmak ucu (S1)' },
+        { no: '«Kan du gå på hælene?»', tr: 'Topuk (L5)' },
+        { no: '«Kan du gjøre en huk?»', tr: 'Huk (L3-L4)' },
+        { no: '«Kan du stå på ett bein?»', tr: 'Tek ayak (L5)' },
+      ]},
+      { title: 'Aktif hareket', time: '60 sn', items: [
+        { no: '«Kan du løfte foten oppover?»', tr: 'Dorsalfleksjon' },
+        { no: '«Kan du peke foten nedover?»', tr: 'Plantarfleksjon' },
+        { no: '«Kan du vri foten innover?»', tr: 'İnversjon' },
+        { no: '«Kan du vri foten utover?»', tr: 'Eversjon' },
+        { no: '«Kan du krølle tærne ned?»', tr: 'Parmak fleksiyonu' },
+        { no: '«Kan du strekke tærne opp?»', tr: 'Parmak ekstansiyonu' },
+      ]},
+      { title: 'Spesiyel testler', time: '60 sn', items: [
+        { no: '«Jeg sjekker ADP og ATP»', tr: 'Akutt fot — distal status' },
+        { no: '«Skuffetest TFA»', tr: 'Skuffetest — ön talofibular bag' },
+        { no: '«Talartilt»', tr: 'Talartilt — kalkaneofibular bag' },
+        { no: '«Thompson test»', tr: 'Thompson — aşil rüptürü' },
+        { no: '«Syndesmosetest»', tr: 'Syndesmose — squeeze + ekst. rot.' },
+      ]},
+      { title: 'Nöroloji + Refleks', time: '45 sn', items: [
+        { no: '«Jeg undersøker L4 sensorikk»', tr: 'L4 / N. saphenus' },
+        { no: '«Jeg undersøker L5 sensorikk»', tr: 'L5 / N. fib. superficialis' },
+        { no: '«Jeg undersøker S1 sensorikk»', tr: 'S1 — lateral ayak' },
+        { no: '«Jeg undersøker fibularis profundus»', tr: 'N. fib. profundus — 1. ve 2. parmak arası' },
+        { no: '«Jeg tester knefleksrefleksen»', tr: 'Patella refleksi' },
+        { no: '«Jeg tester akillesrefleksen»', tr: 'Aşil refleksi' },
+      ]},
+    ]
+  },
+  {
+    id: 'rygg', emoji: '🔙', name: 'Rygg', sub: 'Sırt Muayenesi — 7 dk',
+    steps: [
+      { title: 'Anamnez (SOCRATES)', time: '30 sn', items: [
+        { no: '«Hvor er smerten?»', tr: 'S — Ağrı nerede?' },
+        { no: '«Når begynte det?»', tr: 'O — Ne zaman başladı?' },
+        { no: '«Hvordan er smerten?»', tr: 'C — Ağrı nasıl?' },
+        { no: '«Stråler smerten nedover?»', tr: 'R — Ağrı aşağı vuruyor mu?' },
+        { no: '«Nummenhet eller kraftsvikt?»', tr: 'A — Uyuşma veya güçsüzlük?' },
+        { no: '«Vannlating eller avføring?»', tr: 'Cauda equina — mesane/bağırsak?' },
+      ]},
+      { title: 'İnspeksiyon', time: '45 sn', items: [
+        { no: '«Kan du ta av deg?»', tr: 'Soyunabilir misiniz?' },
+        { no: '«Jeg vurderer tyngdelinjen»', tr: 'Ağırlık hattını değerlendiriyorum' },
+        { no: '«Jeg ser på ryggkurvaturen»', tr: 'Omurga eğriliklerine bakıyorum' },
+        { no: '«Jeg ser etter skoliose»', tr: 'Skolyoz arıyorum' },
+      ]},
+      { title: 'Palpasjon', time: '40 sn', items: [
+        { no: '«Jeg trykker på ryggvirvlene»', tr: 'Spinöz çıkıntılar' },
+        { no: '«Jeg trykker på muskulaturen»', tr: 'Paravertebral kaslar' },
+        { no: '«Jeg trykker på quadratus lumborum»', tr: 'Quadratus lumborum' },
+        { no: '«Jeg trykker på bekkenmuskulaturen»', tr: 'Pelvik kaslar' },
+      ]},
+      { title: 'Aktif hareket', time: '50 sn', items: [
+        { no: '«Kan du bøye deg fremover?»', tr: 'Fleksjon — finger-gulvavstand' },
+        { no: '«Kan du bøye deg bakover?»', tr: 'Ekstensjon' },
+        { no: '«Kan du bøye deg til siden?»', tr: 'Lateralfleksjon' },
+        { no: '«Kan du snu deg til siden?»', tr: 'Rotasjon — sandalyede' },
+      ]},
+      { title: 'Spesiyel testler', time: '70 sn', items: [
+        { no: '«Laseque test»', tr: 'Laseque — 60° öncesi ağrı + diz altı' },
+        { no: '«Krysset Laseque»', tr: 'Krysset Laseque — santral disk' },
+        { no: '«Slump test»', tr: 'Slump — siyatik' },
+        { no: '«Omvendt Laseque»', tr: 'Omvendt Laseque — N. femoralis L3/L4' },
+        { no: '«Hyperekstensjon test»', tr: 'Hyperekstensjonstest — spondylolistesis' },
+        { no: '«Schobers test»', tr: 'Schobers — Bekhterev' },
+      ]},
+      { title: 'Nöroloji + Refleks', time: '45 sn', items: [
+        { no: '«Jeg undersøker L4 motorikk»', tr: 'L4 — Quadriceps / huk' },
+        { no: '«Jeg undersøker L5 motorikk»', tr: 'L5 — Dorsifleksiyon / hælgange' },
+        { no: '«Jeg undersøker S1 motorikk»', tr: 'S1 — Triceps surae / tågange' },
+        { no: '«Jeg tester knefleksrefleksen»', tr: 'Patella refleksi' },
+        { no: '«Jeg tester akillesrefleksen»', tr: 'Aşil refleksi' },
+      ]},
+    ]
+  },
+  {
+    id: 'skulder', emoji: '💪', name: 'Skulder', sub: 'Omuz Muayenesi — 7 dk',
+    steps: [
+      { title: 'İnspeksiyon', time: '40 sn', items: [
+        { no: '«Kan du ta av deg overdelen?»', tr: 'Üstünüzü çıkarabilir misiniz?' },
+        { no: '«Jeg ser på akse og stilling»', tr: 'Eksen ve duruşa bakıyorum' },
+        { no: '«Jeg undersøker muskulaturen»', tr: 'Kas yapısını inceliyorum' },
+        { no: '«Jeg ser etter hevelse»', tr: 'Şişlik arıyorum' },
+        { no: '«Jeg ser etter arr»', tr: 'Yara izi arıyorum' },
+        { no: '«Jeg ser etter høye skuldre»', tr: 'Yüksek omuzlar — subakromial daralma' },
+        { no: '«Jeg ser etter fremoverlente skuldre»', tr: 'Öne eğik omuzlar' },
+      ]},
+      { title: 'Palpasjon', time: '35 sn', items: [
+        { no: '«Jeg undersøker om det er ømhet i muskulaturen»', tr: 'Myalji — genel kas hassasiyeti' },
+        { no: '«Jeg palper scapula»', tr: 'Skapula palpasyonu' },
+        { no: '«Jeg trykker på trapezius»', tr: 'Trapezius' },
+        { no: '«Jeg trykker på infraspinatus»', tr: 'İnfraspinatus' },
+        { no: '«Jeg trykker på supraspinatus»', tr: 'Supraspinatus' },
+      ]},
+      { title: 'Aktif hareket', time: '55 sn', items: [
+        { no: '«Kan du løfte armen fremover og opp?»', tr: 'Fleksjon' },
+        { no: '«Kan du føre armen bakover?»', tr: 'Ekstensjon' },
+        { no: '«Kan du løfte armen ut til siden?»', tr: 'Abduksjon' },
+        { no: '«Kan du føre armen inn foran kroppen?»', tr: 'Adduksjon' },
+        { no: '«Kan du vri armen utover?»', tr: 'Utoverrotasjon' },
+        { no: '«Kan du vri armen innover?»', tr: 'Innoverrotasjon' },
+      ]},
+      { title: 'İzometrik testler', time: '50 sn', items: [
+        { no: '«Jeg tester isometrisk fleksjon i skulderen»', tr: 'Fleksjon direnci' },
+        { no: '«Jeg tester isometrisk abduksjon i skulderen»', tr: 'Abduksjon direnci' },
+        { no: '«Jeg tester isometrisk utoverrotasjon»', tr: 'Utoverrotasjon direnci' },
+        { no: '«Jeg tester isometrisk innoverrotasjon»', tr: 'Innoverrotasjon direnci' },
+      ]},
+      { title: 'Spesiyel testler', time: '70 sn', items: [
+        { no: '«Sulcus test»', tr: 'Sulcus — inferior instabilite' },
+        { no: '«Apprehension test»', tr: 'Apprehension — anterior instabilite' },
+        { no: '«O\'Brien test»', tr: 'O\'Brien — üst labrum SLAP' },
+        { no: '«Crossbody test»', tr: 'Crossbody — AC eklem' },
+        { no: '«Hawkins test»', tr: 'Hawkins — impingement' },
+        { no: '«Neers test»', tr: 'Neers — impingement' },
+        { no: '«Speed test»', tr: 'Speed — biseps tendon' },
+        { no: '«Yergason test»', tr: 'Yergason — biseps stabilitesi' },
+      ]},
+      { title: 'Nöroloji + Refleks', time: '35 sn', items: [
+        { no: '«Kan du løfte armen ut mens jeg holder imot?»', tr: 'C5 motor — abduksjon' },
+        { no: '«Kan du bøye albuen mens jeg holder imot?»', tr: 'C6 motor — albue fleksjon' },
+        { no: '«Kan du strekke albuen mens jeg holder imot?»', tr: 'C7 motor — albue ekstensjon' },
+        { no: '«Kan du knyte hånden mens jeg holder imot?»', tr: 'C8 motor — knytte hånd' },
+        { no: '«Kan du spre fingrene mens jeg holder imot?»', tr: 'C8-T1 motor — sprike fingre' },
+      ]},
+    ]
+  },
+  {
+    id: 'albue', emoji: '🤸', name: 'Albue', sub: 'Dirsek Muayenesi — 7 dk',
+    steps: [
+      { title: 'İnspeksiyon', time: '40 sn', items: [
+        { no: '«Kan du ta av deg overdelen?»', tr: 'Üstünüzü çıkarabilir misiniz?' },
+        { no: '«Jeg ser på akse og stilling»', tr: 'Eksen ve duruşa bakıyorum' },
+        { no: '«Jeg undersøker muskulaturen»', tr: 'Kas yapısını inceliyorum' },
+        { no: '«Jeg ser etter hevelse»', tr: 'Şişlik arıyorum' },
+        { no: '«Jeg ser etter arr»', tr: 'Yara izi arıyorum' },
+        { no: '«Jeg vurderer den fysiologiske valgusvinkelen»', tr: 'Fizyolojik valgus açısı' },
+      ]},
+      { title: 'Palpasjon', time: '50 sn', items: [
+        { no: '«Jeg trykker på olecranon»', tr: 'Olekranon' },
+        { no: '«Jeg trykker på caput radii»', tr: 'Radius başı' },
+        { no: '«Jeg trykker på mediale humeruskondyl»', tr: 'Medial kondil' },
+        { no: '«Jeg trykker på laterale humeruskondyl»', tr: 'Lateral kondil' },
+        { no: '«Jeg palperer n. ulnaris i sulcus»', tr: 'N. ulnaris — ulnar oluk' },
+        { no: '«Jeg palperer humerus fra proksimalt til distalt»', tr: 'Humerus boyunca' },
+        { no: '«Jeg palperer ulna og radius»', tr: 'Ulna + radius boyunca' },
+      ]},
+      { title: 'Aktif hareket', time: '45 sn', items: [
+        { no: '«Kan du bøye albuen så mye som mulig?»', tr: 'Fleksjon' },
+        { no: '«Kan du strekke albuen helt ut?»', tr: 'Ekstensjon' },
+        { no: '«Kan du dreie hånden nedover?»', tr: 'Pronasjon' },
+        { no: '«Kan du dreie hånden oppover?»', tr: 'Supinasjon' },
+      ]},
+      { title: 'İzometrik testler', time: '35 sn', items: [
+        { no: '«Jeg tester isometrisk fleksjon i albuen»', tr: 'Fleksjon direnci' },
+        { no: '«Jeg tester isometrisk ekstensjon i albuen»', tr: 'Ekstensjon direnci' },
+        { no: '«Jeg tester isometrisk pronasjon»', tr: 'Pronasjon direnci' },
+        { no: '«Jeg tester isometrisk supinasjon»', tr: 'Supinasjon direnci' },
+      ]},
+      { title: 'Spesiyel testler', time: '65 sn', items: [
+        { no: '«Artrose test»', tr: 'Artrose — krepitasyon' },
+        { no: '«Lateral epikondyl test»', tr: 'Tennis dirsek — lateral kondil' },
+        { no: '«Medial epikondyl test»', tr: 'Golfer dirsek — medial kondil' },
+        { no: '«Valgus stresstest»', tr: 'Valgus — medial bag' },
+        { no: '«Varus stresstest»', tr: 'Varus — lateral bag' },
+        { no: '«Chair test»', tr: 'Chair testi — sandalye kaldır' },
+        { no: '«Hook test»', tr: 'Hook testi — biseps tendon' },
+        { no: '«OK tegn test»', tr: 'OK işareti — N. medianus' },
+      ]},
+      { title: 'Nöroloji + Refleks', time: '35 sn', items: [
+        { no: '«Kan du røre tommelen til lillefingeren?»', tr: 'N. medianus — opposisjon' },
+        { no: '«Kan du løfte håndleddet opp?»', tr: 'N. radialis — el bileği eks.' },
+        { no: '«Kan du spre fingrene?»', tr: 'N. ulnaris — parmak açma' },
+      ]},
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let currentStation = 0;
+let currentStep = 0;
+let currentItem = 0;
+let itemStates = []; // per station: array of arrays of bools
+let timerInterval = null;
+let timerRunning = false;
+let totalSeconds = 7 * 60;
+let recognition = null;
+let micActive = false;
+
+// Init item states — each item: { done: bool, wrong: bool, revealed: bool }
+stations.forEach(st => {
+  itemStates.push(st.steps.map(step => step.items.map(() => ({ done: false, wrong: false, revealed: false }))));
+});
+
+// ══════════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════════
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.querySelector('.timer-btn:last-child').textContent = '▶';
+  } else {
+    timerRunning = true;
+    document.querySelector('.timer-btn:last-child').textContent = '⏸';
+    timerInterval = setInterval(() => {
+      if (totalSeconds <= 0) { clearInterval(timerInterval); return; }
+      totalSeconds--;
+      const el = document.getElementById('timer');
+      el.textContent = formatTime(totalSeconds);
+      el.className = totalSeconds <= 60 ? 'urgent' : '';
+    }, 1000);
+  }
+}
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  totalSeconds = 7 * 60;
+  document.getElementById('timer').textContent = '7:00';
+  document.getElementById('timer').className = '';
+  document.querySelector('.timer-btn:last-child').textContent = '▶';
+}
+
+// ══════════════════════════════════════════════
+// FUZZY MATCH
+// ══════════════════════════════════════════════
+function normalize(s) {
+  return s.toLowerCase()
+    .replace(/[«»"']/g, '')
+    .replace(/[^a-zæøå0-9\s]/g, '')
+    .trim();
+}
+
+function similarity(a, b) {
+  a = normalize(a); b = normalize(b);
+  const aWords = a.split(/\s+/).filter(w => w.length > 1);
+  const bWords = b.split(/\s+/).filter(w => w.length > 1);
+  if (aWords.length === 0) return 0;
+
+  // Check if transcript contains target (substring match)
+  if (b.includes(a)) return 1.0;
+  if (a.includes(b)) return 0.9;
+
+  // Word overlap — each target word found anywhere in transcript
+  let matches = 0;
+  aWords.forEach(w => {
+    if (bWords.some(bw => bw.includes(w) || w.includes(bw) || levenshtein(w, bw) <= 1)) matches++;
+  });
+  return matches / aWords.length;
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, (_, i) => [i, ...Array(n).fill(0)]);
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function checkMatch(transcript, targetPhrase) {
+  const score = similarity(targetPhrase, transcript);
+  // Lower threshold for short phrases (≤4 words)
+  const words = normalize(targetPhrase).split(/\s+/).filter(w => w.length > 1);
+  const threshold = words.length <= 3 ? 0.45 : 0.55;
+  return { score, matched: score >= threshold };
+}
+
+// ══════════════════════════════════════════════
+// SPEECH RECOGNITION
+// ══════════════════════════════════════════════
+const LANGS = ['nb-NO', 'no-NO', 'nn-NO', 'en-US'];
+let langIdx = 0;
+
+function initSpeech() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    document.getElementById('micStatus').textContent = '❌ Tarayıcı desteklemiyor';
+    return false;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = LANGS[langIdx];
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    const text = (final || interim).trim();
+    document.getElementById('transcriptBox').textContent = text || '...';
+
+    if (text) {
+      const st = stations[currentStation];
+      const step = st.steps[currentStep];
+      if (!step) return;
+      const item = step.items[currentItem];
+      if (item && !itemStates[currentStation][currentStep][currentItem].done) {
+        const { score, matched } = checkMatch(text, item.no);
+        updateMatchFeedback(score, matched, item.no);
+        if (matched) markCurrentItem();
+      }
+    }
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error === 'aborted') return; // ignore aborted
+    if (e.error === 'language-not-supported' || e.error === 'network') {
+      // Try next language
+      if (langIdx < LANGS.length - 1) {
+        langIdx++;
+        document.getElementById('micStatus').textContent = `Dil değiştiriliyor: ${LANGS[langIdx]}...`;
+        recognition.lang = LANGS[langIdx];
+        setTimeout(() => { if (micActive) recognition.start(); }, 500);
+      } else {
+        document.getElementById('micStatus').textContent = '❌ Dil desteklenmiyor';
+      }
+    } else if (e.error !== 'no-speech') {
+      document.getElementById('micStatus').textContent = `Hata: ${e.error}`;
+    }
+  };
+
+  recognition.onend = () => {
+    if (micActive) {
+      setTimeout(() => {
+        try { recognition.start(); } catch(err) {}
+      }, 200);
+    }
+  };
+
+  return true;
+}
+
+function toggleMic() {
+  if (!recognition && !initSpeech()) return;
+  if (micActive) {
+    micActive = false;
+    recognition.stop();
+    document.getElementById('micBtn').classList.remove('listening');
+    document.getElementById('micStatus').textContent = 'Mikrofon kapalı';
+    document.getElementById('micStatus').className = 'mic-status';
+  } else {
+    micActive = true;
+    recognition.start();
+    document.getElementById('micBtn').classList.add('listening');
+    document.getElementById('micStatus').textContent = '● Dinleniyor (nb-NO)';
+    document.getElementById('micStatus').className = 'mic-status active';
+  }
+}
+
+function updateMatchFeedback(score, matched, target) {
+  const pct = Math.round(score * 100);
+  const fb = document.getElementById('matchFeedback');
+  fb.innerHTML = `
+    <div class="match-score ${matched ? 'good' : 'bad'}">${matched ? '✅' : '❌'} %${pct} eşleşme</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:4px;font-family:var(--mono)">Hedef: ${normalize(target)}</div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function markCurrentItem() {
+  const st = stations[currentStation];
+  const step = st.steps[currentStep];
+  const state = itemStates[currentStation][currentStep][currentItem];
+  state.done = true;
+  state.revealed = true;
+  state.wrong = false;
+
+  let next = currentItem + 1;
+  while (next < step.items.length && itemStates[currentStation][currentStep][next].done) next++;
+
+  if (next >= step.items.length) {
+    currentItem = step.items.length - 1;
+    checkStepComplete();
+  } else {
+    currentItem = next;
+  }
+  renderSteps();
+  updateCurrentStepBox();
+}
+
+function checkStepComplete() {
+  const allDone = itemStates[currentStation][currentStep].every(v => v.done || v.wrong);
+  if (allDone) {
+    const st = stations[currentStation];
+    if (currentStep < st.steps.length - 1) {
+      setTimeout(() => {
+        currentStep++;
+        currentItem = 0;
+        renderSteps();
+        updateCurrentStepBox();
+      }, 600);
+    } else {
+      setTimeout(() => showComplete(), 600);
+    }
+  }
+}
+
+function showComplete() {
+  document.getElementById('completeBanner').classList.add('show');
+  document.getElementById('completeBanner').querySelector('p').textContent =
+    `Tamamlandı! Kalan süre: ${document.getElementById('timer').textContent}`;
+}
+
+function nextItem() {
+  const step = stations[currentStation].steps[currentStep];
+  // reveal current before moving
+  itemStates[currentStation][currentStep][currentItem].revealed = true;
+  if (currentItem < step.items.length - 1) {
+    currentItem++;
+  } else if (currentStep < stations[currentStation].steps.length - 1) {
+    currentStep++;
+    currentItem = 0;
+  }
+  renderSteps();
+  updateCurrentStepBox();
+}
+
+function prevItem() {
+  itemStates[currentStation][currentStep][currentItem].revealed = true;
+  if (currentItem > 0) {
+    currentItem--;
+  } else if (currentStep > 0) {
+    currentStep--;
+    currentItem = stations[currentStation].steps[currentStep].items.length - 1;
+  }
+  renderSteps();
+  updateCurrentStepBox();
+}
+
+function tickItem(stepIdx, itemIdx) {
+  const state = itemStates[currentStation][stepIdx][itemIdx];
+  state.done = !state.done;
+  state.revealed = true;
+  if (state.done) state.wrong = false;
+  renderSteps();
+  updateProgress();
+}
+
+function markFasit(stepIdx, itemIdx) {
+  const state = itemStates[currentStation][stepIdx][itemIdx];
+  state.wrong = !state.wrong;
+  state.revealed = true;
+  if (state.wrong) state.done = false;
+  renderSteps();
+  updateProgress();
+}
+
+function resetStation() {
+  if (!confirm('İstasyonu sıfırlamak istediğinize emin misiniz?')) return;
+  const st = stations[currentStation];
+  itemStates[currentStation] = st.steps.map(step =>
+    step.items.map(() => ({ done: false, wrong: false, revealed: false }))
+  );
+  currentStep = 0;
+  currentItem = 0;
+  document.getElementById('completeBanner').classList.remove('show');
+  renderSteps();
+  updateCurrentStepBox();
+  updateProgress();
+  resetTimer();
+}
+
+function updateCurrentStepBox() {
+  const step = stations[currentStation].steps[currentStep];
+  const item = step ? step.items[currentItem] : null;
+  document.getElementById('currentStepText').textContent = item ? item.no.replace(/[«»]/g,'') : '—';
+}
+
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function switchStation(idx) {
+  currentStation = idx;
+  currentStep = 0;
+  currentItem = 0;
+  document.getElementById('completeBanner').classList.remove('show');
+  renderStationBar();
+  renderSteps();
+  updateCurrentStepBox();
+  updateProgress();
+  resetTimer();
+}
+
+function renderStationBar() {
+  const bar = document.getElementById('stationBar');
+  bar.innerHTML = stations.map((st, i) => {
+    const flat = itemStates[i].flat();
+    const total = flat.length;
+    const done = flat.filter(s => s.done).length;
+    const isDone = done === total;
+    return `<button class="st-btn ${i === currentStation ? 'active' : ''} ${isDone ? 'done' : ''}" onclick="switchStation(${i})">
+      ${st.emoji} ${st.name}
+      <span class="st-check">${isDone ? '✓' : done}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderSteps() {
+  const st = stations[currentStation];
+  document.getElementById('stTitle').textContent = `${st.emoji} ${st.name}`;
+  document.getElementById('stSub').textContent = st.sub;
+
+  const list = document.getElementById('stepsList');
+  list.innerHTML = st.steps.map((step, si) => {
+    const stepStates = itemStates[currentStation][si];
+    const allDone = stepStates.every(s => s.done || s.wrong);
+    const isActive = si === currentStep;
+    return `
+      <div class="step-card ${isActive ? 'active' : ''} ${allDone ? 'done' : ''}" onclick="jumpStep(${si})">
+        <div class="step-head">
+          <div class="step-num">${si + 1}</div>
+          <div class="step-title-wrap">
+            <div class="step-title">${step.title}</div>
+            <div class="step-time">⏱ ${step.time}</div>
+          </div>
+          <div class="step-check">✅</div>
+        </div>
+        ${isActive ? `
+        <div class="step-body">
+          <div class="step-items">
+            ${step.items.map((item, ii) => {
+              const s = stepStates[ii];
+              const isCurrentItem = ii === currentItem;
+              const hidden = !s.revealed && !s.done && !s.wrong && !isCurrentItem;
+              let rowClass = '';
+              if (s.done) rowClass = 'matched';
+              else if (s.wrong) rowClass = 'wrong';
+              else if (isCurrentItem) rowClass = 'listening';
+              if (hidden) rowClass += ' hidden';
+              return `
+                <div class="item-row ${rowClass}">
+                  <div class="item-check">${s.done ? '✓' : s.wrong ? '✗' : ''}</div>
+                  <div class="item-text">
+                    <div class="item-no">${item.no}</div>
+                    <div class="item-tr">${item.tr}</div>
+                  </div>
+                  <div class="btn-group">
+                    <button class="manual-tick" onclick="event.stopPropagation(); tickItem(${si},${ii})">
+                      ${s.done ? '↩ Geri' : '✓ Doğru'}
+                    </button>
+                    <button class="manual-tick fasit-btn ${s.wrong ? 'undo-btn' : ''}" onclick="event.stopPropagation(); markFasit(${si},${ii})">
+                      ${s.wrong ? '↩ Geri' : '✗ Fasit'}
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  updateProgress();
+}
+
+function jumpStep(si) {
+  currentStep = si;
+  currentItem = 0;
+  renderSteps();
+  updateCurrentStepBox();
+}
+
+function updateProgress() {
+  const flat = itemStates[currentStation].flat();
+  const total = flat.length;
+  const done = flat.filter(s => s.done).length;
+  const wrong = flat.filter(s => s.wrong).length;
+  const pct = total ? (done / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `✅${done} ✗${wrong} / ${total}`;
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+renderStationBar();
+renderSteps();
+updateCurrentStepBox();
+updateProgress();
+</script>
+</body>
+</html>
