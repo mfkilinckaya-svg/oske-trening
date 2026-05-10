@@ -1016,11 +1016,23 @@ function initSpeech() {
       const st = stations[currentStation];
       const step = st.steps[currentStep];
       if (!step) return;
-      const item = step.items[currentItem];
-      if (item && !itemStates[currentStation][currentStep][currentItem].done) {
-        const { score, matched } = checkMatch(text, item.no);
-        updateMatchFeedback(score, matched, item.no);
-        if (matched) markCurrentItem();
+
+      // Check ALL unfinished items in current step
+      let bestScore = 0, bestIdx = -1;
+      step.items.forEach((item, ii) => {
+        if (!itemStates[currentStation][currentStep][ii].done) {
+          const { score } = checkMatch(text, item.no);
+          if (score > bestScore) { bestScore = score; bestIdx = ii; }
+        }
+      });
+
+      if (bestIdx >= 0) {
+        const { matched } = checkMatch(text, step.items[bestIdx].no);
+        updateMatchFeedback(bestScore, matched, step.items[bestIdx].no);
+        if (matched) {
+          currentItem = bestIdx;
+          markCurrentItem();
+        }
       }
     }
   };
@@ -1065,8 +1077,10 @@ function toggleMic() {
     micActive = true;
     recognition.start();
     document.getElementById('micBtn').classList.add('listening');
-    document.getElementById('micStatus').textContent = '● Dinleniyor (nb-NO)';
+    document.getElementById('micStatus').textContent = `● Dinleniyor (${LANGS[langIdx]})`;
     document.getElementById('micStatus').className = 'mic-status active';
+    // Zamanlayıcı otomatik başlasın
+    if (!timerRunning) toggleTimer();
   }
 }
 
@@ -1104,20 +1118,9 @@ function markCurrentItem() {
 }
 
 function checkStepComplete() {
-  const allDone = itemStates[currentStation][currentStep].every(v => v.done || v.wrong);
-  if (allDone) {
-    const st = stations[currentStation];
-    if (currentStep < st.steps.length - 1) {
-      setTimeout(() => {
-        currentStep++;
-        currentItem = 0;
-        renderSteps();
-        updateCurrentStepBox();
-      }, 600);
-    } else {
-      setTimeout(() => showComplete(), 600);
-    }
-  }
+  // Don't auto-advance — user presses İleri manually
+  // Just show visual completion indicator
+  renderSteps();
 }
 
 function showComplete() {
