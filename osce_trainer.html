@@ -581,12 +581,12 @@ const stations = [
     steps: [
       { title: 'İnspeksiyon', time: '45 sn', items: [
         { no: '«Kan du ta av deg?»', tr: 'Soyunabilir misiniz?', kw: ['avkledning','av deg','kledd','kler'] },
-        { no: '«Jeg ser på akse og stilling»', tr: 'Eksen ve duruşa bakıyorum', kw: ['akse','stilling','avvik','normal akse'] },
-        { no: '«Jeg undersøker muskulaturen»', tr: 'Kas yapısını inceliyorum', kw: ['atrofi','muskulatur','ingen atrofi','muskel'] },
-        { no: '«Jeg ser etter hevelse»', tr: 'Şişlik arıyorum', kw: ['hevelse','ingen hevelse','ødem','hovne'] },
-        { no: '«Jeg ser etter bloduttredelse»', tr: 'Hematom arıyorum', kw: ['hematom','blod','ingen hematom','bloduttredelse'] },
-        { no: '«Jeg ser etter sårskader»', tr: 'Yara arıyorum', kw: ['sår','ingen sår','sårskade','skade'] },
-        { no: '«Jeg ser etter arr»', tr: 'Yara izi arıyorum', kw: ['arr','ingen arr','operasjon','arret'] },
+        { no: '«Jeg ser på akse og stilling»', tr: 'Eksen ve duruşa bakıyorum', kw: ['akse','stilling','avvik','normal akse','ingen avvik','normal stilling','akseavvik'] },
+        { no: '«Jeg undersøker muskulaturen»', tr: 'Kas yapısını inceliyorum', kw: ['atrofi','muskulatur','ingen atrofi','muskel','symmetrisk','ingen muskelatrofi'] },
+        { no: '«Jeg ser etter hevelse»', tr: 'Şişlik arıyorum', kw: ['hevelse','ingen hevelse','ødem','hovne','hoven','finnes ingen hevelse','ser ingen hevelse'] },
+        { no: '«Jeg ser etter bloduttredelse»', tr: 'Hematom arıyorum', kw: ['hematom','blod','ingen hematom','bloduttredelse','blødning','ingen blødning','blåmerke'] },
+        { no: '«Jeg ser etter sårskader»', tr: 'Yara arıyorum', kw: ['sår','ingen sår','sårskade','skade','ingen skade','ingen sårskade'] },
+        { no: '«Jeg ser etter arr»', tr: 'Yara izi arıyorum', kw: ['arr','ingen arr','operasjon','arret','arr ses','ingen operasjon'] },
         { no: '«Jeg vurderer anteversjonsvinkelen»', tr: 'Anteversiyon açısını değerlendiriyorum', kw: ['anteversjon','vinkel','anteversjonsvinkel'] },
         { no: '«Jeg ser etter beinlengdeforskjell»', tr: 'Bacak boyu farkına bakıyorum', kw: ['beinlengde','forskjell','beinlengdeforskjell','forskjellig'] },
       ]},
@@ -986,12 +986,9 @@ function levenshtein(a, b) {
 
 function checkKeywords(transcript, keywords) {
   const t = normalize(transcript);
-  const tWords = t.split(/\s+/);
   for (const kw of keywords) {
     const k = normalize(kw);
-    // Direct match or close match
     if (t.includes(k)) return true;
-    if (tWords.some(w => levenshtein(w, k) <= 1 && k.length > 3)) return true;
   }
   return false;
 }
