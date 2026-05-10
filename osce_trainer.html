@@ -304,6 +304,10 @@ main {
   filter: blur(4px);
   user-select: none;
 }
+.item-row.listening.hidden {
+  border-color: var(--accent);
+  background: rgba(59,130,246,0.08);
+}
 
 .item-check {
   width: 18px; height: 18px;
@@ -957,13 +961,15 @@ function similarity(a, b) {
   const bWords = b.split(/\s+/).filter(w => w.length > 1);
   if (aWords.length === 0) return 0;
 
-  // Exact substring match — transcript contains the full target
+  // Exact full match
+  if (b === a) return 1.0;
+  // Transcript contains exact target phrase
   if (b.includes(a)) return 1.0;
 
-  // Word overlap — but ONLY count words that appear in transcript as whole words
+  // Count how many TARGET words appear exactly in transcript (whole word match only)
   let matches = 0;
   aWords.forEach(w => {
-    if (bWords.some(bw => bw === w || levenshtein(w, bw) <= 1)) matches++;
+    if (bWords.some(bw => bw === w || levenshtein(w, bw) <= (w.length > 5 ? 1 : 0))) matches++;
   });
   return matches / aWords.length;
 }
@@ -980,9 +986,8 @@ function levenshtein(a, b) {
 
 function checkMatch(transcript, targetPhrase) {
   const score = similarity(targetPhrase, transcript);
-  // Require high similarity — at least 70% of target words must match
   const words = normalize(targetPhrase).split(/\s+/).filter(w => w.length > 1);
-  const threshold = words.length <= 3 ? 0.75 : 0.70;
+  const threshold = words.length <= 3 ? 0.85 : 0.80;
   return { score, matched: score >= threshold };
 }
 
@@ -1017,23 +1022,13 @@ function initSpeech() {
       const step = st.steps[currentStep];
       if (!step) return;
 
-      // Check ALL unfinished items in current step
-      let bestScore = 0, bestIdx = -1;
-      step.items.forEach((item, ii) => {
-        if (!itemStates[currentStation][currentStep][ii].done) {
-          const { score } = checkMatch(text, item.no);
-          if (score > bestScore) { bestScore = score; bestIdx = ii; }
-        }
-      });
+      // Only check the CURRENT active item
+      const item = step.items[currentItem];
+      if (!item || itemStates[currentStation][currentStep][currentItem].done) return;
 
-      if (bestIdx >= 0) {
-        const { matched } = checkMatch(text, step.items[bestIdx].no);
-        updateMatchFeedback(bestScore, matched, step.items[bestIdx].no);
-        if (matched) {
-          currentItem = bestIdx;
-          markCurrentItem();
-        }
-      }
+      const { score, matched } = checkMatch(text, item.no);
+      updateMatchFeedback(score, matched, item.no);
+      if (matched) markCurrentItem();
     }
   };
 
@@ -1104,17 +1099,14 @@ function markCurrentItem() {
   state.revealed = true;
   state.wrong = false;
 
+  // Auto advance to next item
   let next = currentItem + 1;
-  while (next < step.items.length && itemStates[currentStation][currentStep][next].done) next++;
-
-  if (next >= step.items.length) {
-    currentItem = step.items.length - 1;
-    checkStepComplete();
-  } else {
+  if (next < step.items.length) {
     currentItem = next;
   }
   renderSteps();
   updateCurrentStepBox();
+  updateProgress();
 }
 
 function checkStepComplete() {
@@ -1249,15 +1241,16 @@ function renderSteps() {
             ${step.items.map((item, ii) => {
               const s = stepStates[ii];
               const isCurrentItem = ii === currentItem;
-              const hidden = !s.revealed && !s.done && !s.wrong && !isCurrentItem;
+              // All items blurred except done/wrong ones
+              const hidden = !s.done && !s.wrong;
               let rowClass = '';
               if (s.done) rowClass = 'matched';
               else if (s.wrong) rowClass = 'wrong';
-              else if (isCurrentItem) rowClass = 'listening';
-              if (hidden) rowClass += ' hidden';
+              else if (isCurrentItem) rowClass = 'listening hidden'; // active but still blurred
+              else rowClass = 'hidden';
               return `
                 <div class="item-row ${rowClass}">
-                  <div class="item-check">${s.done ? '✓' : s.wrong ? '✗' : ''}</div>
+                  <div class="item-check">${s.done ? '✓' : s.wrong ? '✗' : isCurrentItem ? '▶' : ''}</div>
                   <div class="item-text">
                     <div class="item-no">${item.no}</div>
                     <div class="item-tr">${item.tr}</div>
